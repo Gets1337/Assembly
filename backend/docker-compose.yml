@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: diplom-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: diplom
+    ports:
+      - "5432:5432"
+    volumes:
+      - $PWD/postgres-data:/var/lib/postgresql/data
+
