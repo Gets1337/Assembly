@@ -9,9 +9,7 @@ export const UserModel = {
         fullName: userData.fullName,
         login: userData.login,
         password: userData.password,
-        role: {
-          connect: { id: userData.roleId }
-        }
+        role_id: userData.roleId
       }
     });
   },
