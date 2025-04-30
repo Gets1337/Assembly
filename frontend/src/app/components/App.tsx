@@ -1,6 +1,6 @@
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
-import Router from '../router';
+import {Router} from '../router';
 
 
 function App() {
@@ -12,4 +12,4 @@ function App() {
   );
 }
 
-export default App;
+export {App};

@@ -161,8 +161,8 @@ ALTER TABLE "ProductinCells" ADD CONSTRAINT "ProductinCells_cellId_fkey" FOREIGN
 ALTER TABLE "Reserve" ADD CONSTRAINT "Reserve_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 Insert INTO "Role" ("name") VALUES ('admin');
-INSERT INTO "Role" ("name") VALUES ('сборщик');
-INSERT INTO "Role" ("name") VALUES ('пользователь');
+INSERT INTO "Role" ("name") VALUES ('worker');
+INSERT INTO "Role" ("name") VALUES ('user');
 
 ALTER TABLE "User" ADD COLUMN "role_id" INT NOT NULL DEFAULT 1;
 

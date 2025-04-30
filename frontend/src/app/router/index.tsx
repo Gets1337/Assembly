@@ -1,45 +1,28 @@
 import React from "react";
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, BrowserRouter} from 'react-router-dom';
 import Login from '../../modules/auth/pages/Login';
 import Register from '../../modules/auth/pages/Register';
-import { useAuthStore } from "../../modules/auth/stores/authStore";
+import { Dashboard, ProtectedRoute } from "../../modules/auth/pages/Dashboard";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    const { isAuthenticated } = useAuthStore();
-    
-    if (!isAuthenticated) {
-      return <Navigate to="/login" />;
-    }
-  
-    return <>{children}</>;
-  };
-  
-  const Dashboard = () => {
-    const { user, logout } = useAuthStore();
-    
-    return (
-      <div style={{ padding: '20px' }}>
-        <button onClick={logout}>Выйти</button>
-      </div>
-    );
-  };
 
 const Router: React.FC = () => {
     return (
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                    <ProtectedRoute>
+                        <Dashboard />
+                    </ProtectedRoute>
+                    }
+                />
+                <Route path="/" element={<Navigate to="/login" />} />
+            </Routes>
+        </BrowserRouter>
     )
 };
 
-export default Router;
+export {Router};
