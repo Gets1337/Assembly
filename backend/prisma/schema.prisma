@@ -66,6 +66,7 @@ model Product {
   name          String
   description   String?
   image_url     String?
+  price         Decimal         @default(0)
   stock_quantity Int
   cells         ProductInCells[]
   orders        ProductInOrder[]

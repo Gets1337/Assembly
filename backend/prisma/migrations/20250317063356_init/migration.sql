@@ -166,10 +166,6 @@ INSERT INTO "Role" ("name") VALUES ('user');
 
 ALTER TABLE "User" ADD COLUMN "role_id" INT NOT NULL DEFAULT 1;
 
-INSERT INTO "User" ("birthDate", "fullName", "login", "password", "roleId") VALUES ('1990-01-01', 'Admin', 'admin', 'admin', 1);
-INSERT INTO "User" ("birthDate", "fullName", "login", "password", "roleId") VALUES ('1995-05-01', 'Сборщик', 'worker', 'password123', 2);
-INSERT INTO "User" ("birthDate", "fullName", "login", "password", "roleId") VALUES ('2000-12-12', 'Пользователь', 'user', 'password123', 3);
-
 INSERT INTO "OrderStatus" ("name") VALUES ('Создан');
 INSERT INTO "OrderStatus" ("name") VALUES ('В работе');
 INSERT INTO "OrderStatus" ("name") VALUES ('Готов к выдаче');

@@ -12,22 +12,25 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await authAPI.login(login, password);
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-
-        const expirationTime = Date.now() + 20 * 60 * 1000; 
-        localStorage.setItem('tokenExpiration', expirationTime.toString());
-
-        setTimeout(() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('tokenExpiration');
-          set({ user: null, isAuthenticated: false });
-        }, 20 * 60 * 1000);
+      if (!response.token) {
+        throw new Error('Ошибка при входе');
       }
+      
+      localStorage.setItem('token', response.token);
+
+      const expirationTime = Date.now() + 20 * 60 * 1000; 
+      localStorage.setItem('tokenExpiration', expirationTime.toString());
+
+      setTimeout(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('tokenExpiration');
+        set({ user: null, isAuthenticated: false });
+      }, 20 * 60 * 1000);
       
       set({ user: response.user, isAuthenticated: true, isLoading: false });
     } catch (error) {
       set({ error: 'Ошибка при входе', isLoading: false });
+      throw error;
     }
   },
 
@@ -65,4 +68,4 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('token');
     localStorage.removeItem('tokenExpiration');
   },
-})); 
+}));  

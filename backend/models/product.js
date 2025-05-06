@@ -10,14 +10,31 @@ export const ProductModel = {
 
   // Получить все продукты
   async getAll() {
-    return getPrismaClient().product.findMany();
+    const products = await getPrismaClient().product.findMany();
+    return products.map(product => ({
+      id: product.id,
+      title: product.name,
+      description: product.description,
+      image: product.image_url,
+      price: Number(product.price),
+      stock_quantity: product.stock_quantity
+    }));
   },
 
   // Получить продукт по ID
   async getById(id) {
-    return getPrismaClient().product.findUnique({
+    const product = await getPrismaClient().product.findUnique({
       where: { id },
     });
+    if (!product) return null;
+    return {
+      id: product.id,
+      title: product.name,
+      description: product.description,
+      image: product.image_url,
+      price: Number(product.price),
+      stock_quantity: product.stock_quantity
+    };
   },
 
   // Обновить данные продукта

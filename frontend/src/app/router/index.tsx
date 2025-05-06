@@ -1,9 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate, BrowserRouter} from 'react-router-dom';
-import Login from '../../modules/auth/pages/Login';
-import Register from '../../modules/auth/pages/Register';
-import { Dashboard, ProtectedRoute } from "../../modules/auth/pages/Dashboard";
-
+import Login from '../../modules/auth/pages/login';
+import Register from "../../modules/auth/pages/register";
+import { HomePage } from "../../modules/user-interface/pages/home-page";
 
 const Router: React.FC = () => {
     return (
@@ -12,11 +11,9 @@ const Router: React.FC = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route
-                    path="/dashboard"
+                    path="/store"
                     element={
-                    <ProtectedRoute>
-                        <Dashboard />
-                    </ProtectedRoute>
+                        <HomePage/>
                     }
                 />
                 <Route path="/" element={<Navigate to="/login" />} />
