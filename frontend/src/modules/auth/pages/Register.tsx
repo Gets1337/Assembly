@@ -13,24 +13,28 @@ import {
   Divider,
 } from '@mui/joy';
 
-export default function Register() {
+export function Register() {
   const navigate = useNavigate();
-  const { register, isLoading, error } = useAuthStore();
+  const { register } = useAuthStore();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [localError, setLocalError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError('');
+    setIsLoading(true);
     
     try {
       await register(login, password, fullName, birthDate);
-      navigate('/dashboard');
+      navigate('/store');
     } catch (err) {
       setLocalError('Ошибка при регистрации. Возможно, пользователь с таким логином уже существует.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -42,6 +46,8 @@ export default function Register() {
         left: 0,
         right: 0,
         bottom: 0,
+        width: '100vw',
+        height: '100vh',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -151,7 +157,7 @@ export default function Register() {
             />
           </FormControl>
 
-          {(error || localError) && (
+          {(localError) && (
             <Typography 
               color="danger" 
               fontSize="sm"
@@ -162,7 +168,7 @@ export default function Register() {
                 borderRadius: 'sm',
               }}
             >
-              {localError || error}
+              {localError}
             </Typography>
           )}
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate, BrowserRouter} from 'react-router-dom';
-import Login from '../../modules/auth/pages/login';
-import Register from "../../modules/auth/pages/register";
-import { HomePage } from "../../modules/user-interface/pages/home-page";
+import { Login, Register } from "../../modules/auth";
+import { HomePage } from "../../modules/user-interface";
+import { ProtectedRoute } from "../components/ProtectedRoute";
 
 const Router: React.FC = () => {
     return (
@@ -16,7 +16,23 @@ const Router: React.FC = () => {
                         <HomePage/>
                     }
                 />
-                <Route path="/" element={<Navigate to="/login" />} />
+                <Route
+                    path="/cart"
+                    element={
+                        <ProtectedRoute>
+                            <HomePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/orders"
+                    element={
+                        <ProtectedRoute>
+                            <HomePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route path="/" element={<Navigate to="/store" />} />
             </Routes>
         </BrowserRouter>
     )

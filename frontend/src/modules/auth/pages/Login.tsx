@@ -13,23 +13,26 @@ import {
   Divider,
 } from '@mui/joy';
 
-export default function Login() {
+export function Login() {
   const navigate = useNavigate();
-  const { login: authLogin, isLoading, error } = useAuthStore();
+  const { login: authLogin } = useAuthStore();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError('');
+    setIsLoading(true);
     
     try {
       await authLogin(login, password);
       navigate('/store');
     } catch (err) {
       setLocalError('Неверный логин или пароль');
-      return;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -41,6 +44,8 @@ export default function Login() {
         left: 0,
         right: 0,
         bottom: 0,
+        width: '100vw',
+        height: '100vh',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -122,7 +127,7 @@ export default function Login() {
             />
           </FormControl>
 
-          {(error || localError) && (
+          {(localError) && (
             <Typography 
               color="danger" 
               fontSize="sm"
@@ -133,7 +138,7 @@ export default function Login() {
                 borderRadius: 'sm',
               }}
             >
-              {localError || error}
+              {localError}
             </Typography>
           )}
 

@@ -1,54 +1,41 @@
 import { create } from 'zustand';
-import { productApi } from '../api/productApi';
-import { Store } from '../types'
+import { Product, Store } from '../types';
+import { productService } from '../services/product-service';
 
-export const useStore = create<Store>((set, get) => ({
+export const useStore = create<Store>((set) => ({
   products: [],
   cart: [],
-  isLoading: false,
-  error: null,
 
   fetchProducts: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const products = await productApi.getAllProducts();
-      set({ products, isLoading: false });
-    } catch (error) {
-      set({ error: 'Ошибка при загрузке товаров', isLoading: false });
+    const products = await productService.fetchProducts();
+    set({ products });
+    return products;
+  },
+
+  fetchCart: async () => {
+    const cart = await productService.fetchCart();
+    set({ cart });
+    return cart;
+  },
+
+  addToCart: async (product: Product) => {
+    if (product.stock_quantity <= 0) {
+      throw new Error('Товар отсутствует на складе');
     }
+    const cart = await productService.addToCart(product.id);
+    set({ cart });
+    return cart;
   },
 
-  addToCart: (product) => {
-    const cart = get().cart;
-    const existingItem = cart.find((item) => item.id === product.id);
-
-    if (existingItem) {
-      set({
-        cart: cart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        ),
-      });
-    } else {
-      set({ cart: [...cart, { ...product, quantity: 1 }] });
-    }
+  updateQuantity: async (itemId: number, quantity: number) => {
+    const cart = await productService.updateQuantity(itemId, quantity);
+    set({ cart });
+    return cart;
   },
 
-  updateQuantity: (id, quantity) => {
-    if (quantity < 1) return;
-    set({
-      cart: get().cart.map((item) =>
-        item.id === id ? { ...item, quantity } : item
-      ),
-    });
-  },
-
-  removeFromCart: (id) => {
-    set({ cart: get().cart.filter((item) => item.id !== id) });
-  },
-
-  clearCart: () => {
-    set({ cart: [] });
-  },
+  removeFromCart: async (itemId: number) => {
+    const cart = await productService.removeFromCart(itemId);
+    set({ cart });
+    return cart;
+  }
 })); 

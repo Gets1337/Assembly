@@ -1,59 +1,116 @@
-import { Card, Typography, AspectRatio, Button, Modal, ModalDialog, ModalClose, Box } from '@mui/joy';
 import { useState } from 'react';
+import { Box, Card, Typography, Button, Modal, ModalDialog, ModalClose, AspectRatio, CircularProgress } from '@mui/joy';
+import { useStore } from '../store/product-store';
 import { ProductCardProps } from '../types';
-export const ProductCard = ({ id, title, description, price, image, onAddToCart }: ProductCardProps) => {
-  const [open, setOpen] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
+import { useNavigate } from 'react-router-dom';
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+export const ProductCard = ({ product }: ProductCardProps) => {
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { addToCart } = useStore();
+  const navigate = useNavigate();
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    onAddToCart(id);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      await addToCart(product);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Ошибка при добавлении товара в корзину');
+      console.error('Ошибка при добавлении в корзину:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const isOutOfStock = product.stock_quantity <= 0;
 
   return (
     <>
       <Card
         variant="outlined"
-        sx={{ 
-          width: 400,
+        onClick={() => setOpen(true)}
+        sx={{
+          width: '100%',
+          maxWidth: '300px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          p: 2,
           cursor: 'pointer',
-          transition: 'transform 0.2s',
           '&:hover': {
-            transform: 'scale(1.02)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            boxShadow: 'md',
+            transform: 'translateY(-4px)',
+            transition: 'all 0.2s ease-in-out'
           }
         }}
-        onClick={() => setOpen(true)}
       >
-        <AspectRatio minHeight="250px" maxHeight="250px">
-          <img 
-            src={image} 
-            alt={title} 
-            style={{ 
-              objectFit: 'cover',
+        <Box
+          sx={{
+            width: '100%',
+            height: '200px',
+            overflow: 'hidden',
+            borderRadius: 'sm',
+            bgcolor: 'background.level1'
+          }}
+        >
+          <img
+            src={product.image}
+            alt={product.title}
+            style={{
               width: '100%',
-              height: '100%'
-            }} 
+              height: '100%',
+              objectFit: 'cover'
+            }}
           />
-        </AspectRatio>
-        <Box sx={{ p: 2 }}>
-          <Typography level="title-lg" sx={{ mb: 1 }}>
-            {title}
-          </Typography>
-          <Typography level="body-lg" sx={{ color: 'primary.500', fontWeight: 'bold', mb: 2 }}>
-            {price} ₽
-          </Typography>
-          <Button
-            variant="solid"
-            color={isAdded ? "success" : "primary"}
-            fullWidth
-            onClick={handleAddToCart}
-          >
-            {isAdded ? "Товар добавлен в корзину" : "Добавить в корзину"}
-          </Button>
         </Box>
+
+        <Box sx={{ flex: 1 }}>
+          <Typography level="title-lg" sx={{ mb: 1 }}>
+            {product.title}
+          </Typography>
+          <Typography level="body-sm" sx={{ mb: 2, color: 'neutral.500' }}>
+            {product.description}
+          </Typography>
+          <Typography level="title-md" sx={{ color: 'primary.500' }}>
+            {product.price} ₽
+          </Typography>
+        </Box>
+
+        {error && (
+          <Typography color="danger" level="body-sm">
+            {error}
+          </Typography>
+        )}
+
+        <Button
+          onClick={handleAddToCart}
+          disabled={isLoading || isOutOfStock}
+          sx={{
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+            '&:hover': {
+              background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+            },
+          }}
+        >
+          {isLoading ? (
+            <CircularProgress size="sm" />
+          ) : isOutOfStock ? (
+            'Нет в наличии'
+          ) : (
+            'В корзину'
+          )}
+        </Button>
       </Card>
 
       <Modal
@@ -72,16 +129,19 @@ export const ProductCard = ({ id, title, description, price, image, onAddToCart 
         >
           <ModalClose />
           <Typography level="title-lg" sx={{ mb: 1 }}>
-            {title}
+            {product.title}
           </Typography>
           <AspectRatio minHeight="300px" maxHeight="300px" sx={{ my: 2 }}>
-            <img src={image} alt={title} />
+            <img src={product.image} alt={product.title} />
           </AspectRatio>
           <Typography level="body-md" sx={{ mb: 2 }}>
-            {description}
+            {product.description}
           </Typography>
-          <Typography level="title-lg" sx={{ mb: 2 }}>
-            {price} ₽
+          <Typography level="title-lg" sx={{ mb: 1 }}>
+            {product.price} ₽
+          </Typography>
+          <Typography level="body-sm" sx={{ color: isOutOfStock ? 'danger.500' : 'success.500', mb: 2 }}>
+            {isOutOfStock ? 'Нет в наличии' : `В наличии: ${product.stock_quantity} шт.`}
           </Typography>
         </ModalDialog>
       </Modal>

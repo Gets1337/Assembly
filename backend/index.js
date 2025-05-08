@@ -9,6 +9,7 @@ import storageCell from './routes/storageCell.js';
 import user from './routes/user.js';
 import product from './routes/product.js';
 import order from './routes/order.js';
+import cart from './routes/cart.js';
 import { UserModel } from './models/user.js';
 
 const prisma = new PrismaClient();
@@ -25,7 +26,7 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-app.post('/auth/register', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
     const { login, password, fullName, birthDate } = req.body;
 
@@ -55,7 +56,6 @@ app.post('/auth/register', async (req, res) => {
       roleId: userRole.id
     });
 
-    // Генерируем JWT токен
     const token = jwt.sign(
       { userId: user.id, role: userRole.name },
       JWT_SECRET,
@@ -78,7 +78,7 @@ app.post('/auth/register', async (req, res) => {
   }
 });
 
-app.post('/auth/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     const { login, password } = req.body;
     const user = await prisma.user.findUnique({
@@ -120,11 +120,12 @@ app.post('/auth/login', async (req, res) => {
 });
 
 // Подключаем остальные маршруты
-app.use('/infos', info);
-app.use('/products', product);
-app.use('/users', user);
-app.use('/storage-cells', storageCell);
-app.use('/orders', order);
+app.use('/api/infos', info);
+app.use('/api/products', product);
+app.use('/api/users', user);
+app.use('/api/storage-cells', storageCell);
+app.use('/api/orders', order);
+app.use('/api/cart', cart);
 
 app.use((req, res, next) => {
   res.status(404).send('Страница не найдена');

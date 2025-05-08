@@ -1,102 +1,151 @@
-import { Sheet, Typography, Button, IconButton, Box } from '@mui/joy';
+import { useEffect, useState } from 'react';
+import { Sheet, Typography, Button, IconButton, Box, CircularProgress } from '@mui/joy';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useStore } from '../store/product-store';
+import { CartProps } from '../types';
 
-interface CartItem {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
-  quantity: number;
-}
+export const Cart = ({ onCheckout }: CartProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { cart = [], fetchCart, updateQuantity, removeFromCart } = useStore();
 
-interface CartProps {
-  items: CartItem[];
-  onUpdateQuantity: (id: number, quantity: number) => void;
-  onRemoveItem: (id: number) => void;
-  onCheckout: () => void;
-}
+  useEffect(() => {
+    const loadCart = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        await fetchCart();
+      } catch (error) {
+        setError('Ошибка при загрузке корзины');
+        console.error('Ошибка при загрузке корзины:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadCart();
+  }, [fetchCart]);
 
-export const Cart = ({ items, onUpdateQuantity, onRemoveItem, onCheckout }: CartProps) => {
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const handleUpdateQuantity = async (itemId: number, newQuantity: number) => {
+    setError(null);
+    try {
+      await updateQuantity(itemId, newQuantity);
+    } catch (error) {
+      setError('Ошибка при обновлении количества товара');
+      console.error('Ошибка при обновлении количества:', error);
+    }
+  };
+
+  const handleRemoveItem = async (itemId: number) => {
+    setError(null);
+    try {
+      await removeFromCart(itemId);
+    } catch (error) {
+      setError('Ошибка при удалении товара из корзины');
+      console.error('Ошибка при удалении товара:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Typography color="danger" level="h4" sx={{ textAlign: 'center' }}>
+        {error}
+      </Typography>
+    );
+  }
+
+  const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   return (
     <Sheet
       variant="outlined"
       sx={{
-        p: 2,
-        borderRadius: 'sm',
-        minWidth: 300,
+        p: 3,
+        borderRadius: 'md',
+        width: '100%',
+        maxWidth: '800px',
+        mx: 'auto'
       }}
     >
-      <Typography level="title-lg" sx={{ mb: 2 }}>
-        Корзина
-      </Typography>
+      <Typography level="h4" sx={{ mb: 2 }}>Корзина</Typography>
       
-      {items.length === 0 ? (
-        <Typography level="body-md">Корзина пуста</Typography>
+      {cart.length === 0 ? (
+        <Typography>Корзина пуста</Typography>
       ) : (
         <>
-          {items.map((item) => (
+          {cart.map((item) => (
             <Box
               key={item.id}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 2,
-                mb: 2,
-                p: 1,
-                borderRadius: 'sm',
-                '&:hover': {
-                  bgcolor: 'background.level1',
-                },
+                py: 2,
+                borderBottom: '1px solid',
+                borderColor: 'divider'
               }}
             >
-              <img
-                src={item.image}
-                alt={item.title}
-                style={{ width: 50, height: 50, objectFit: 'cover' }}
-              />
               <Box sx={{ flex: 1 }}>
-                <Typography level="body-md">{item.title}</Typography>
-                <Typography level="body-sm">{item.price} ₽</Typography>
+                <Typography level="title-md">{item.product.title}</Typography>
+                <Typography level="body-sm" sx={{ color: 'neutral.500' }}>
+                  {item.product.price} ₽
+                </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mx: 2 }}>
                 <Button
                   variant="outlined"
                   size="sm"
-                  onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
                 >
                   -
                 </Button>
-                <Typography level="body-md">{item.quantity}</Typography>
+                <Typography>{item.quantity}</Typography>
                 <Button
                   variant="outlined"
                   size="sm"
-                  onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                 >
                   +
                 </Button>
-                <IconButton
-                  variant="plain"
-                  color="danger"
-                  onClick={() => onRemoveItem(item.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
               </Box>
+              
+              <Typography sx={{ minWidth: '100px', textAlign: 'right' }}>
+                {item.product.price * item.quantity} ₽
+              </Typography>
+              
+              <IconButton
+                variant="plain"
+                color="danger"
+                onClick={() => handleRemoveItem(item.id)}
+                sx={{ ml: 2 }}
+              >
+                <DeleteIcon />
+              </IconButton>
             </Box>
           ))}
           
-          <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-            <Typography level="title-lg" sx={{ mb: 2 }}>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography level="title-lg">
               Итого: {total} ₽
             </Typography>
             <Button
-              variant="solid"
-              color="primary"
-              fullWidth
+              size="lg"
               onClick={onCheckout}
+              sx={{
+                background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+                },
+              }}
             >
               Оформить заказ
             </Button>

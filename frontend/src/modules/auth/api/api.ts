@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
 
 export const authAPI = {
   login: async (login: string, password: string) => {
-    const response = await api.post('/auth/login', { login, password });
+    const response = await api.post('/api/auth/login', { login, password });
     return response.data;
   },
   
@@ -30,7 +30,7 @@ export const authAPI = {
     fullName: string;
     birthDate: string;
   }) => {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post('/api/auth/register', userData);
     return response.data;
   },
 };

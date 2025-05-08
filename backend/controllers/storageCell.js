@@ -1,4 +1,3 @@
-// controllers/storageCellController.js
 import { StorageCellModel } from "../models/storageCell.js";
 
 export const storageCellController = {

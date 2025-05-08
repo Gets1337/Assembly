@@ -17,6 +17,7 @@ model User {
   role_id      Int
   role         Role      @relation(fields: [role_id], references: [id])
   orders       Order[]
+  cart         Cart?
 }
 
 // 2. Роли
@@ -73,6 +74,7 @@ model Product {
   reserves      Reserve[]
   created_at    DateTime        @default(now())
   updated_at    DateTime?       @updatedAt
+  cartItems     CartItem[]
 }
 
 // 7. Продукты в заказах 
@@ -123,4 +125,26 @@ model Info {
   id        Int      @id @default(autoincrement())
   key       String   @unique
   value     String
+}
+
+// Модель корзины
+model Cart {
+  id        Int        @id @default(autoincrement())
+  user_id   Int        @unique
+  user      User       @relation(fields: [user_id], references: [id])
+  items     CartItem[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+// Модель товаров в корзине
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  cart_id    Int
+  cart       Cart     @relation(fields: [cart_id], references: [id])
+  product_id Int
+  product    Product  @relation(fields: [product_id], references: [id])
+  quantity   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
