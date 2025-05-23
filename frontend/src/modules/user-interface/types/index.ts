@@ -50,12 +50,45 @@ export interface UIStore {
 
 export interface Product {
   id: number;
-  title: string;
-  description: string;
+  name: string;
   price: number;
-  image: string;
-  stock_quantity: number;
-} 
+  image_url: string;
+}
 
+export interface CreateOrderRequest {
+  items: {
+    product_id: number;
+    quantity: number;
+  }[];
+  user_id: number;
+  payment_method: 'cash';
+}
+
+export interface Order {
+  id: number;
+  status: OrderStatus;
+  payment_method: 'cash' | 'card';
+  total_amount: number;
+  created_at: string;
+  products: ProductInOrder[];
+}
+
+export interface OrderModalProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  totalAmount: number;
+}
+
+export interface ProductInOrder {
+  id: number;
+  product: Product;
+  quantity: number;
+}
+
+export interface OrderStatus {
+  id: number;
+  name: string;
+} 
 
   

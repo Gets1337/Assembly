@@ -166,10 +166,10 @@ INSERT INTO "Role" ("name") VALUES ('user');
 
 ALTER TABLE "User" ADD COLUMN "role_id" INT NOT NULL DEFAULT 1;
 
-INSERT INTO "OrderStatus" ("name") VALUES ('Создан');
-INSERT INTO "OrderStatus" ("name") VALUES ('В работе');
-INSERT INTO "OrderStatus" ("name") VALUES ('Готов к выдаче');
-INSERT INTO "OrderStatus" ("name") VALUES ('Выдан');
+INSERT INTO "OrderStatus" ("name") VALUES ('Created');
+INSERT INTO "OrderStatus" ("name") VALUES ('Worked');
+INSERT INTO "OrderStatus" ("name") VALUES ('Ready');
+INSERT INTO "OrderStatus" ("name") VALUES ('Issued');
 
 BEGIN;
 CREATE OR REPLACE FUNCTION update_timestamp() RETURNS TRIGGER AS $$

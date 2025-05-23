@@ -1,97 +1,160 @@
 import { OrderModel } from "../models/order.js";
+import { CartModel } from "../models/cart.js";
+import { CartItemModel } from "../models/cartItem.js";
+import { getPrismaClient } from "../db/index.js";
 
 export const orderController = {
-  // Создание нового заказа
+  // Создание заказа
   async create(req, res) {
     try {
-      const orderData = req.body;
-      const order = await OrderModel.create(orderData);
-      res.status(201).json(order);
+      const userId = req.user.userId;
+      const { payment_method } = req.body;
+
+      // Получаем корзину пользователя
+      const cart = await CartModel.findByUserId(userId);
+      if (!cart) {
+        return res.status(404).json({ error: 'Корзина не найдена' });
+      }
+
+      // Получаем товары в корзине
+      const cartItems = await CartItemModel.findByCartId(cart.id);
+      if (!cartItems.length) {
+        return res.status(400).json({ error: 'Корзина пуста' });
+      }
+
+      // Рассчитываем общую сумму
+      const total_amount = cartItems.reduce((sum, item) => {
+        return sum + (Number(item.product.price) * item.quantity);
+      }, 0);
+
+      // Создаем заказ
+      const order = await OrderModel.create({
+        user_id: userId,
+        status_id: 1, // Статус "Created"
+        payment_method,
+        total_amount,
+        products: cartItems.map(item => ({
+          productId: item.product_id,
+          quantity: item.quantity
+        }))
+      });
+
+      // Очищаем корзину
+      await CartItemModel.deleteByCartId(cart.id);
+      await ReserveModel.deleteByCartId(cart.id);
+
+      res.json(order);
     } catch (error) {
-      console.error('Ошибка при создании заказа:', error);
-      res.status(500).json({ error: 'Ошибка при создании заказа' });
+      res.status(500).json({ 
+        error: 'Внутренняя ошибка сервера',
+        details: error.message 
+      });
     }
   },
 
-  // Получение всех заказов
-  async getAll(req, res) {
+  // Получение всех заказов пользователя
+  async getUserOrders(req, res) {
     try {
-      const orders = await OrderModel.getAll();
-      res.status(200).json(orders);
+      const userId = req.user.userId;
+      const orders = await OrderModel.findByUserId(userId);
+      res.json(orders);
     } catch (error) {
-      console.error('Ошибка при получении заказов:', error);
-      res.status(500).json({ error: 'Ошибка при получении заказов' });
+      res.status(500).json({ 
+        error: 'Внутренняя ошибка сервера',
+        details: error.message 
+      });
     }
   },
 
   // Получение заказа по ID
-  async getById(req, res) {
-    const { id } = req.params;
+  async getOrder(req, res) {
     try {
-      const order = await OrderModel.getById(Number(id));
+      const { id } = req.params;
+      const userId = req.user.userId;
+
+      const order = await OrderModel.findById(id);
       if (!order) {
         return res.status(404).json({ error: 'Заказ не найден' });
       }
-      res.status(200).json(order);
-    } catch (error) {
-      console.error('Ошибка при получении заказа:', error);
-      res.status(500).json({ error: 'Ошибка при получении заказа' });
-    }
-  },
 
-  // Обновление заказа
-  async update(req, res) {
-    const { id } = req.params;
-    const updateData = req.body;
-    try {
-      const updatedOrder = await OrderModel.update(Number(id), updateData);
-      if (!updatedOrder) {
-        return res.status(404).json({ error: 'Заказ не найден' });
+      if (order.user_id !== userId) {
+        return res.status(403).json({ error: 'Нет доступа к этому заказу' });
       }
-      res.status(200).json(updatedOrder);
+
+      res.json(order);
     } catch (error) {
-      console.error('Ошибка при обновлении заказа:', error);
-      res.status(500).json({ error: 'Ошибка при обновлении заказа' });
+      res.status(500).json({ 
+        error: 'Внутренняя ошибка сервера',
+        details: error.message 
+      });
     }
   },
 
-  // Обновление статуса заказа
+  // Обновление статуса заказа (для работников)
   async updateStatus(req, res) {
-    const { id } = req.params;
-    const { status_id } = req.body;
     try {
-      const updatedOrder = await OrderModel.updateStatus(Number(id), Number(status_id));
-      if (!updatedOrder) {
-        return res.status(404).json({ error: 'Заказ не найден' });
-      }
-      res.status(200).json(updatedOrder);
+      const { id } = req.params;
+      const { status_id } = req.body;
+
+      const order = await OrderModel.updateStatus(id, status_id);
+      res.json(order);
     } catch (error) {
-      console.error('Ошибка при обновлении статуса заказа:', error);
-      res.status(500).json({ error: 'Ошибка при обновлении статуса заказа' });
+      res.status(500).json({ 
+        error: 'Внутренняя ошибка сервера',
+        details: error.message 
+      });
+    }
+  },
+
+  // Получение всех заказов (для работников)
+  async getAllOrders(req, res) {
+    try {
+      const orders = await OrderModel.findAll();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ 
+        error: 'Внутренняя ошибка сервера',
+        details: error.message 
+      });
+    }
+  },
+
+  // Получение заказов по статусу (для работников)
+  async getOrdersByStatus(req, res) {
+    try {
+      const { status_id } = req.params;
+      const orders = await OrderModel.findByStatus(status_id);
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ 
+        error: 'Внутренняя ошибка сервера',
+        details: error.message 
+      });
     }
   },
 
   // Удаление заказа
   async delete(req, res) {
-    const { id } = req.params;
     try {
-      await OrderModel.delete(Number(id));
-      res.status(204).send();
-    } catch (error) {
-      console.error('Ошибка при удалении заказа:', error);
-      res.status(500).json({ error: 'Ошибка при удалении заказа' });
-    }
-  },
+      const { id } = req.params;
+      const userId = req.user.userId;
 
-  // Получение заказов пользователя
-  async getByUserId(req, res) {
-    const { userId } = req.params;
-    try {
-      const orders = await OrderModel.getByUserId(Number(userId));
-      res.status(200).json(orders);
+      const order = await OrderModel.findById(id);
+      if (!order) {
+        return res.status(404).json({ error: 'Заказ не найден' });
+      }
+
+      if (order.user_id !== userId) {
+        return res.status(403).json({ error: 'Нет доступа к этому заказу' });
+      }
+
+      await OrderModel.delete(id);
+      res.json({ message: 'Заказ успешно удален' });
     } catch (error) {
-      console.error('Ошибка при получении заказов пользователя:', error);
-      res.status(500).json({ error: 'Ошибка при получении заказов пользователя' });
+      res.status(500).json({ 
+        error: 'Внутренняя ошибка сервера',
+        details: error.message 
+      });
     }
   }
 }; 

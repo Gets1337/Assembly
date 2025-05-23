@@ -1,22 +1,23 @@
 import express from 'express';
 import { orderController } from '../controllers/order.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Применяем middleware аутентификации ко всем маршрутам
+router.use(authenticateToken);
 
 // Маршрут для создания заказа
 router.post('/', orderController.create);
 
+// Маршрут для получения заказов по статусу
+router.get('/status/:status_id', orderController.getOrdersByStatus);
+
 // Маршрут для получения всех заказов
-router.get('/', orderController.getAll);
+router.get('/', orderController.getAllOrders);
 
 // Маршрут для получения заказа по ID
-router.get('/:id', orderController.getById);
-
-// Маршрут для получения заказов пользователя
-router.get('/user/:userId', orderController.getByUserId);
-
-// Маршрут для обновления заказа
-router.put('/:id', orderController.update);
+router.get('/:id', orderController.getOrder);
 
 // Маршрут для обновления статуса заказа
 router.patch('/:id/status', orderController.updateStatus);
@@ -24,4 +25,4 @@ router.patch('/:id/status', orderController.updateStatus);
 // Маршрут для удаления заказа
 router.delete('/:id', orderController.delete);
 
-export default router; 
+export { router as order }; 

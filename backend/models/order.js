@@ -2,48 +2,44 @@ import { getPrismaClient } from "../db/index.js";
 
 export const OrderModel = {
   // Создание нового заказа
-  async create(orderData) {
-    return getPrismaClient().order.create({
-      data: orderData,
-      include: {
-        user: true,
-        status: true,
+  async create(data) {
+    return await getPrismaClient().order.create({
+      data: {
+        user_id: Number(data.user_id),
+        status_id: Number(data.status_id),
+        payment_method: data.payment_method,
+        total_amount: Number(data.total_amount),
         products: {
-          include: {
-            product: true
-          }
+          create: data.products.map(product => ({
+            productId: Number(product.productId),
+            quantity: Number(product.quantity)
+          }))
         }
-      }
-    });
-  },
-
-  // Получить все заказы
-  async getAll() {
-    return getPrismaClient().order.findMany({
+      },
       include: {
-        user: true,
-        status: true,
-        products: {
-          include: {
-            product: true
-          }
-        }
-      }
-    });
-  },
-
-  // Получить заказ по ID
-  async getById(id) {
-    return getPrismaClient().order.findUnique({
-      where: { id },
-      include: {
-        user: true,
-        status: true,
         products: {
           include: {
             product: true
           }
         },
+        status: true,
+        user: true
+      }
+    });
+  },
+
+  // Получение заказа по ID
+  async findById(id) {
+    return await getPrismaClient().order.findUnique({
+      where: { id: Number(id) },
+      include: {
+        products: {
+          include: {
+            product: true
+          }
+        },
+        status: true,
+        user: true,
         history: {
           include: {
             current_status: true,
@@ -54,79 +50,186 @@ export const OrderModel = {
     });
   },
 
-  // Обновить данные заказа
-  async update(id, updateData) {
-    return getPrismaClient().order.update({
-      where: { id },
-      data: updateData,
+  // Получение всех заказов пользователя
+  async findByUserId(userId) {
+    return await getPrismaClient().order.findMany({
+      where: { user_id: Number(userId) },
       include: {
-        user: true,
-        status: true,
         products: {
           include: {
             product: true
           }
+        },
+        status: true,
+        history: {
+          include: {
+            current_status: true,
+            new_status: true
+          }
         }
+      },
+      orderBy: {
+        created_at: 'desc'
       }
     });
   },
 
-  // Обновить статус заказа
-  async updateStatus(id, statusId) {
-    // Сначала получаем текущий заказ
-    const order = await getPrismaClient().order.findUnique({
-      where: { id },
-      include: { status: true }
-    });
-
+  // Обновление статуса заказа
+  async updateStatus(id, newStatusId) {
+    const order = await this.findById(id);
     if (!order) {
-      return null;
+      throw new Error('Заказ не найден');
     }
 
-    // Создаем запись в истории заказов
+    // Создаем запись в истории
     await getPrismaClient().orderHistory.create({
       data: {
-        orderId: id,
+        orderId: Number(id),
         currentStatusId: order.status_id,
-        newStatusId: statusId
+        newStatusId: Number(newStatusId)
       }
     });
 
     // Обновляем статус заказа
-    return getPrismaClient().order.update({
-      where: { id },
-      data: { status_id: statusId },
+    return await getPrismaClient().order.update({
+      where: { id: Number(id) },
+      data: {
+        status_id: Number(newStatusId)
+      },
       include: {
+        products: {
+          include: {
+            product: true
+          }
+        },
+        status: true,
+        history: {
+          include: {
+            current_status: true,
+            new_status: true
+          }
+        }
+      }
+    });
+  },
+
+  // Получение всех заказов
+  async findAll() {
+    return await getPrismaClient().order.findMany({
+      include: {
+        products: {
+          include: {
+            product: true
+          }
+        },
+        status: true,
         user: true,
-        status: true,
-        products: {
+        history: {
           include: {
-            product: true
+            current_status: true,
+            new_status: true
           }
         }
+      },
+      orderBy: {
+        created_at: 'desc'
       }
     });
   },
 
-  // Удалить заказ
-  async delete(id) {
-    return getPrismaClient().order.delete({
-      where: { id }
-    });
-  },
-
-  // Получить заказы пользователя
-  async getByUserId(userId) {
-    return getPrismaClient().order.findMany({
-      where: { user_id: userId },
+  // Получение заказов по статусу
+  async findByStatus(statusId) {
+    return await getPrismaClient().order.findMany({
+      where: { status_id: Number(statusId) },
       include: {
-        status: true,
         products: {
           include: {
             product: true
           }
+        },
+        status: true,
+        user: true,
+        history: {
+          include: {
+            current_status: true,
+            new_status: true
+          }
         }
+      },
+      orderBy: {
+        created_at: 'desc'
       }
+    });
+  },
+
+  // Получить статус заказа по имени
+  async getStatusByName(name) {
+    return getPrismaClient().orderStatus.findFirst({
+      where: { name }
+    });
+  },
+
+  // Создать запись в истории заказов
+  async createHistoryRecord(orderId, currentStatusId, newStatusId) {
+    return getPrismaClient().orderHistory.create({
+      data: {
+        orderId: Number(orderId),
+        currentStatusId,
+        newStatusId
+      }
+    });
+  },
+
+  // Получить пользователя по ID
+  async getUserById(userId) {
+    return getPrismaClient().user.findUnique({
+      where: { id: userId }
+    });
+  },
+
+  // Получить продукт по ID
+  async getProductById(productId) {
+    return getPrismaClient().product.findUnique({
+      where: { id: productId }
+    });
+  },
+
+  // Обновить количество товара на складе
+  async updateProductStock(productId, newQuantity) {
+    return getPrismaClient().product.update({
+      where: { id: productId },
+      data: { stock_quantity: newQuantity }
+    });
+  },
+
+  // Получить корзину пользователя
+  async getCartByUserId(userId) {
+    return getPrismaClient().cart.findFirst({
+      where: { user_id: userId }
+    });
+  },
+
+  // Очистить корзину
+  async clearCart(cartId) {
+    return getPrismaClient().cartItem.deleteMany({
+      where: { cart_id: cartId }
+    });
+  },
+
+  // Удаление заказа
+  async delete(id) {
+    // Сначала удаляем связанные записи
+    await getPrismaClient().orderProduct.deleteMany({
+      where: { orderId: Number(id) }
+    });
+
+    await getPrismaClient().orderHistory.deleteMany({
+      where: { orderId: Number(id) }
+    });
+
+    // Затем удаляем сам заказ
+    return await getPrismaClient().order.delete({
+      where: { id: Number(id) }
     });
   }
 }; 

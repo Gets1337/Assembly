@@ -13,6 +13,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       
       localStorage.setItem('token', response.token);
+      localStorage.setItem('userRole', response.user.role);
       set({ user: response.user });
     } catch (error) {
       throw error;
@@ -30,6 +31,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       
       if (response.token) {
         localStorage.setItem('token', response.token);
+        localStorage.setItem('userRole', response.user.role);
       }
       
       set({ user: response.user });
@@ -41,5 +43,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     set({ user: null });
     localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
   },
 }));  

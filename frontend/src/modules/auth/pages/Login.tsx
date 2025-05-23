@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/auth-store';
+import { validateLogin } from '../utils/validation';
 import {
   Box,
   Button,
@@ -13,24 +14,47 @@ import {
   Divider,
 } from '@mui/joy';
 
+interface ValidationErrors {
+  login?: string;
+  password?: string;
+}
+
 export function Login() {
   const navigate = useNavigate();
   const { login: authLogin } = useAuthStore();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [localError, setLocalError] = useState('');
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocalError('');
+    setErrors({});
+
+    // Валидация данных
+    const validationErrors = validateLogin({
+      login,
+      password
+    });
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       await authLogin(login, password);
       navigate('/store');
-    } catch (err) {
-      setLocalError('Неверный логин или пароль');
+    } catch (err: any) {
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else {
+        setErrors({
+          login: 'Неверный логин или пароль'
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +122,7 @@ export function Login() {
         <Divider />
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <FormControl>
+          <FormControl error={!!errors.login}>
             <FormLabel>Логин</FormLabel>
             <Input
               placeholder="Введите логин"
@@ -110,9 +134,14 @@ export function Login() {
                 '--Input-radius': '8px',
               }}
             />
+            {errors.login && (
+              <Typography color="danger" fontSize="sm" sx={{ mt: 0.5 }}>
+                {errors.login}
+              </Typography>
+            )}
           </FormControl>
 
-          <FormControl>
+          <FormControl error={!!errors.password}>
             <FormLabel>Пароль</FormLabel>
             <Input
               placeholder="Введите пароль"
@@ -125,22 +154,12 @@ export function Login() {
                 '--Input-radius': '8px',
               }}
             />
+            {errors.password && (
+              <Typography color="danger" fontSize="sm" sx={{ mt: 0.5 }}>
+                {errors.password}
+              </Typography>
+            )}
           </FormControl>
-
-          {(localError) && (
-            <Typography 
-              color="danger" 
-              fontSize="sm"
-              sx={{ 
-                textAlign: 'center',
-                bgcolor: 'danger.softBg',
-                p: 1,
-                borderRadius: 'sm',
-              }}
-            >
-              {localError}
-            </Typography>
-          )}
 
           <Button
             type="submit"

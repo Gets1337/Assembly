@@ -8,6 +8,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { ProductCard } from './product-card';
 import { Cart } from './cart';
+import { OrdersPage } from '../pages/orders-page';
 import { useStore } from '../store/product-store';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -140,7 +141,7 @@ export const MainLayout = () => {
                 Товары
               </Tab>
               {isAuthenticated && (
-                <>
+                <Box sx={{ display: 'flex' }}>
                   <Tab onClick={() => handleTabClick('/cart')}>
                     <ShoppingCartIcon sx={{ mr: 1 }} />
                     Корзина
@@ -149,7 +150,7 @@ export const MainLayout = () => {
                     <AssignmentIcon sx={{ mr: 1 }} />
                     Заказы
                   </Tab>
-                </>
+                </Box>
               )}
             </TabList>
 
@@ -185,7 +186,7 @@ export const MainLayout = () => {
               </TabPanel>
 
               {isAuthenticated && (
-                <>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <TabPanel value={1} sx={{ flex: 1 }}>
                     <Cart
                       onCheckout={() => {
@@ -194,9 +195,9 @@ export const MainLayout = () => {
                     />
                   </TabPanel>
                   <TabPanel value={2} sx={{ flex: 1 }}>
-                    <Typography>История заказов</Typography>
+                    <OrdersPage />
                   </TabPanel>
-                </>
+                </Box>
               )}
             </Box>
           </Tabs>

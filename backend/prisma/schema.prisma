@@ -7,144 +7,133 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. Пользователи
 model User {
-  id           Int       @id @default(autoincrement())
-  birthDate    DateTime
-  fullName     String
-  login        String    @unique
-  password     String
-  role_id      Int
-  role         Role      @relation(fields: [role_id], references: [id])
-  orders       Order[]
-  cart         Cart?
+  id        Int      @id @default(autoincrement())
+  birthDate DateTime
+  fullName  String
+  login     String   @unique
+  password  String
+  role_id   Int
+  cart      Cart?
+  orders    Order[]
+  role      Role     @relation(fields: [role_id], references: [id])
 }
 
-// 2. Роли
 model Role {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  users    User[]
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
 }
 
-// 3. Заказы
 model Order {
-  id              Int             @id @default(autoincrement())
-  created_at      DateTime        @default(now())
-  updated_at      DateTime        @updatedAt
-  status_id       Int
-  user_id         Int
-  user            User            @relation(fields: [user_id], references: [id])
-  status          OrderStatus     @relation(fields: [status_id], references: [id])
-  products        ProductInOrder[]
-  history         OrderHistory[]
+  id             Int              @id @default(autoincrement())
+  created_at     DateTime         @default(now())
+  status_id      Int
+  updated_at     DateTime         @updatedAt
+  user_id        Int
+  payment_method String
+  total_amount   Decimal          @default(0)
+  status         OrderStatus      @relation(fields: [status_id], references: [id])
+  user           User             @relation(fields: [user_id], references: [id])
+  history        OrderHistory[]
+  products       ProductInOrder[]
 }
 
-// 4. История заказов
 model OrderHistory {
   id              Int         @id @default(autoincrement())
   orderId         Int
-  order           Order       @relation(fields: [orderId], references: [id])
   currentStatusId Int
-  current_status  OrderStatus @relation("CurrentStatus", fields: [currentStatusId], references: [id])
   newStatusId     Int
-  new_status      OrderStatus @relation("NewStatus", fields: [newStatusId], references: [id])
   created_at      DateTime    @default(now())
+  current_status  OrderStatus @relation("CurrentStatus", fields: [currentStatusId], references: [id])
+  new_status      OrderStatus @relation("NewStatus", fields: [newStatusId], references: [id])
+  order           Order       @relation(fields: [orderId], references: [id])
 }
 
-// 5. Статусы заказа
 model OrderStatus {
-  id                  Int             @id @default(autoincrement())
-  name                String          @unique
-  orders              Order[]
-  current_in_history  OrderHistory[]  @relation("CurrentStatus")
-  new_in_history      OrderHistory[]  @relation("NewStatus")
+  id                 Int            @id @default(autoincrement())
+  name               String         @unique
+  orders             Order[]
+  current_in_history OrderHistory[] @relation("CurrentStatus")
+  new_in_history     OrderHistory[] @relation("NewStatus")
 }
 
-// 6. Продукты
 model Product {
-  id            Int             @id @default(autoincrement())
-  name          String
-  description   String?
-  image_url     String?
-  price         Decimal         @default(0)
+  id             Int              @id @default(autoincrement())
+  name           String
+  description    String?
+  created_at     DateTime         @default(now())
+  image_url      String?
   stock_quantity Int
-  cells         ProductInCells[]
-  orders        ProductInOrder[]
-  reserves      Reserve[]
-  created_at    DateTime        @default(now())
-  updated_at    DateTime?       @updatedAt
-  cartItems     CartItem[]
+  updated_at     DateTime?        @updatedAt
+  price          Decimal          @default(0)
+  cartItems      CartItem[]
+  cells          ProductInCells[]
+  orders         ProductInOrder[]
+  reserves       Reserve[]
 }
 
-// 7. Продукты в заказах 
 model ProductInOrder {
-  id        Int       @id @default(autoincrement())
-  orderId   Int
-  order     Order     @relation(fields: [orderId], references: [id])
-  productId Int
-  product   Product   @relation(fields: [productId], references: [id])
-  quantity  Int       @default(1)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-}
-
-// 8. Система хранения 
-model StorageCell {
-  id          Int             @id @default(autoincrement())
-  description String
-  products    ProductInCells[]
-  created_at  DateTime        @default(now())
-  updated_at  DateTime        @updatedAt
-}
-
-// 9. Продукты в ячейках
-model ProductInCells {
-  id          Int         @id @default(autoincrement())
-  productId   Int
-  product     Product     @relation(fields: [productId], references: [id])
-  cellId      Int
-  cell        StorageCell @relation(fields: [cellId], references: [id])
-  quantity    Int
-  created_at  DateTime    @default(now())
-  updated_at  DateTime    @updatedAt
-}
-
-// 10. Резервы 
-model Reserve {
-  id          Int      @id @default(autoincrement())
-  productId   Int
-  product     Product  @relation(fields: [productId], references: [id])
-  quantity    Int
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-}
-
-// 11. Информация о системе 
-model Info {
-  id        Int      @id @default(autoincrement())
-  key       String   @unique
-  value     String
-}
-
-// Модель корзины
-model Cart {
-  id        Int        @id @default(autoincrement())
-  user_id   Int        @unique
-  user      User       @relation(fields: [user_id], references: [id])
-  items     CartItem[]
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-}
-
-// Модель товаров в корзине
-model CartItem {
   id         Int      @id @default(autoincrement())
-  cart_id    Int
-  cart       Cart     @relation(fields: [cart_id], references: [id])
-  product_id Int
-  product    Product  @relation(fields: [product_id], references: [id])
+  orderId    Int
+  productId  Int
+  quantity   Int      @default(1)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  order      Order    @relation(fields: [orderId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+model StorageCell {
+  id          Int              @id @default(autoincrement())
+  description String
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
+  products    ProductInCells[]
+}
+
+model ProductInCells {
+  id         Int         @id @default(autoincrement())
+  productId  Int
+  cellId     Int
+  quantity   Int
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  cell       StorageCell @relation(fields: [cellId], references: [id])
+  product    Product     @relation(fields: [productId], references: [id])
+}
+
+model Reserve {
+  id         Int      @id @default(autoincrement())
+  productId  Int
   quantity   Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+model Info {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
+
+model Cart {
+  id         Int        @id @default(autoincrement())
+  user_id    Int        @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  user       User       @relation(fields: [user_id], references: [id])
+  items      CartItem[]
+}
+
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  cart_id    Int
+  product_id Int
+  quantity   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  cart       Cart     @relation(fields: [cart_id], references: [id])
+  product    Product  @relation(fields: [product_id], references: [id])
 }
