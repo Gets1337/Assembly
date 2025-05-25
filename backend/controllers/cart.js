@@ -1,6 +1,6 @@
 import { CartModel } from "../models/cart.js";
 import { CartItemModel } from "../models/cartItem.js";
-import { getPrismaClient } from "../db/index.js";
+import { ProductModel } from "../models/product.js";
 
 export const cartController = {
   // Получить корзину пользователя
@@ -33,9 +33,7 @@ export const cartController = {
         return res.status(400).json({ error: 'Неверные данные товара' });
       }
 
-      const product = await getPrismaClient().product.findUnique({
-        where: { id: productId }
-      });
+      const product = await ProductModel.getById(productId);
 
       if (!product) {
         return res.status(404).json({ error: 'Товар не найден' });

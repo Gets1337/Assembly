@@ -22,6 +22,16 @@ export const CartItemModel = {
     });
   },
 
+  // Получение всех элементов корзины по ID корзины
+  async findByCartId(cartId) {
+    return await getPrismaClient().cartItem.findMany({
+      where: { cart_id: cartId },
+      include: {
+        product: true
+      }
+    });
+  },
+
   // Получение элемента корзины по ID корзины и ID продукта
   async findByCartAndProduct(cartId, productId) {
     return await getPrismaClient().cartItem.findFirst({

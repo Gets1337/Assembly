@@ -1,14 +1,12 @@
 import { OrderModel } from "../models/order.js";
 import { CartModel } from "../models/cart.js";
 import { CartItemModel } from "../models/cartItem.js";
-import { getPrismaClient } from "../db/index.js";
 
 export const orderController = {
   // Создание заказа
   async create(req, res) {
     try {
       const userId = req.user.userId;
-      const { payment_method } = req.body;
 
       // Получаем корзину пользователя
       const cart = await CartModel.findByUserId(userId);
@@ -31,7 +29,7 @@ export const orderController = {
       const order = await OrderModel.create({
         user_id: userId,
         status_id: 1, // Статус "Created"
-        payment_method,
+        payment_method: "cash", // Фиксированный способ оплаты
         total_amount,
         products: cartItems.map(item => ({
           productId: item.product_id,
@@ -41,7 +39,7 @@ export const orderController = {
 
       // Очищаем корзину
       await CartItemModel.deleteByCartId(cart.id);
-      await ReserveModel.deleteByCartId(cart.id);
+      // await ReserveModel.deleteByCartId(cart.id); // TODO: Добавить модель резервирования если нужно
 
       res.json(order);
     } catch (error) {

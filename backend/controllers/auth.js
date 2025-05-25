@@ -1,18 +1,14 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../models/user.js';
 import { validateRegistration, validateLogin } from '../validators/auth.js';
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const authController = {
     async register(req, res) {
         try {
             const { login, password, fullName, birthDate } = req.body;
-
-            // Валидация данных
             const validationErrors = validateRegistration({
                 login,
                 password,
@@ -24,10 +20,7 @@ export const authController = {
                 return res.status(400).json({ errors: validationErrors });
             }
 
-            // Проверка существования пользователя
-            const existingUser = await prisma.user.findUnique({
-                where: { login }
-            });
+            const existingUser = await UserModel.findByLogin(login);
 
             if (existingUser) {
                 return res.status(400).json({
@@ -37,20 +30,14 @@ export const authController = {
                 });
             }
 
-            let userRole = await prisma.role.findUnique({
-                where: { name: 'user' }
-            });
+            let userRole = await UserModel.findRoleByName('user');
 
             if (!userRole) {
-                userRole = await prisma.role.create({
-                    data: { name: 'user' }
-                });
+                userRole = await UserModel.createRole('user');
             }
 
-            // Хеширование пароля
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            // Создание пользователя
             const user = await UserModel.create({
                 login,
                 password: hashedPassword,
@@ -59,7 +46,6 @@ export const authController = {
                 roleId: userRole.id
             });
 
-            // Создание токена
             const token = jwt.sign(
                 { userId: user.id, role: userRole.name },
                 JWT_SECRET,
@@ -89,7 +75,6 @@ export const authController = {
         try {
             const { login, password } = req.body;
 
-            // Валидация данных
             const validationErrors = validateLogin({
                 login,
                 password
@@ -99,11 +84,7 @@ export const authController = {
                 return res.status(400).json({ errors: validationErrors });
             }
 
-            // Поиск пользователя
-            const user = await prisma.user.findUnique({
-                where: { login },
-                include: { role: true }
-            });
+            const user = await UserModel.findByLoginWithRole(login);
 
             if (!user) {
                 return res.status(401).json({
@@ -113,7 +94,6 @@ export const authController = {
                 });
             }
 
-            // Проверка пароля
             const isValidPassword = await bcrypt.compare(password, user.password);
 
             if (!isValidPassword) {
@@ -124,7 +104,6 @@ export const authController = {
                 });
             }
 
-            // Создание токена
             const token = jwt.sign(
                 { userId: user.id, role: user.role.name },
                 JWT_SECRET,

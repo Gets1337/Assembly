@@ -218,7 +218,6 @@ export const OrderModel = {
 
   // Удаление заказа
   async delete(id) {
-    // Сначала удаляем связанные записи
     await getPrismaClient().orderProduct.deleteMany({
       where: { orderId: Number(id) }
     });
@@ -227,7 +226,6 @@ export const OrderModel = {
       where: { orderId: Number(id) }
     });
 
-    // Затем удаляем сам заказ
     return await getPrismaClient().order.delete({
       where: { id: Number(id) }
     });
