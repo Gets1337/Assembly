@@ -10,7 +10,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        // Здесь нужно добавить API-запрос для проверки токена и получения данных пользователя
         const response = await authAPI.checkAuth();
         const userData: User = {
           id: response.user.id,
@@ -21,7 +20,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         };
         set({ user: userData, isLoading: false });
       } catch (error) {
-        // Если токен невалидный, очищаем его
         localStorage.removeItem('token');
         set({ user: null, isLoading: false });
       }
