@@ -1,5 +1,5 @@
 import { MainLayout } from '../components/main-layout';
 
-export const OrdersPage = () => {
+export const CartPage = () => {
   return <MainLayout />;
 }; 

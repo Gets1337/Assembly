@@ -36,7 +36,6 @@ export const productService = {
     const response = await api.get('/api/cart');
     const cartItems = response.data.items || [];
     
-    // Получаем полные данные о продуктах
     const itemsWithProducts = await Promise.all(
       cartItems.map(async (item: any) => {
         const productResponse = await api.get(`/api/products/${item.product_id}`);

@@ -1,11 +1,9 @@
 import { Box, Button, Typography, Grid } from '@mui/joy';
 import { useNavigate } from 'react-router-dom';
 import { OrderList } from '../components/order-list';
-import { useState } from 'react';
 
 export const WorkerPage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'Created' | 'Ready'>('Created');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -55,6 +53,7 @@ export const WorkerPage = () => {
           Выйти
         </Button>
       </Box>
+      
       <Grid 
         container 
         spacing={2} 
@@ -73,30 +72,23 @@ export const WorkerPage = () => {
               borderColor: 'divider',
               borderRadius: 'md',
               height: '100%',
-              cursor: 'pointer',
-              bgcolor: activeTab === 'Created' ? 'background.level1' : 'background.surface',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                bgcolor: 'background.level1',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-              }
+              overflow: 'auto'
             }}
-            onClick={() => setActiveTab('Created')}
           >
             <Typography 
               level="h4" 
               sx={{ 
                 mb: 2,
-                color: activeTab === 'Created' ? 'primary.500' : 'text.primary',
+                color: 'primary.500',
                 fontWeight: 'bold'
               }}
             >
-              Несобранные заказы
+              Заказы на сборку
             </Typography>
             <OrderList status="Created" />
           </Box>
         </Grid>
+        
         <Grid xs={6}>
           <Box
             sx={{
@@ -105,26 +97,18 @@ export const WorkerPage = () => {
               borderColor: 'divider',
               borderRadius: 'md',
               height: '100%',
-              cursor: 'pointer',
-              bgcolor: activeTab === 'Ready' ? 'background.level1' : 'background.surface',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                bgcolor: 'background.level1',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-              }
+              overflow: 'auto'
             }}
-            onClick={() => setActiveTab('Ready')}
           >
             <Typography 
               level="h4" 
               sx={{ 
                 mb: 2,
-                color: activeTab === 'Ready' ? 'primary.500' : 'text.primary',
+                color: 'success.500',
                 fontWeight: 'bold'
               }}
             >
-              Готовые к выдаче
+              Готовые заказы
             </Typography>
             <OrderList status="Ready" />
           </Box>

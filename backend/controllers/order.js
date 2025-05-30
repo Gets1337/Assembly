@@ -1,26 +1,23 @@
 import { OrderModel } from "../models/order.js";
 import { CartModel } from "../models/cart.js";
 import { CartItemModel } from "../models/cartItem.js";
+import { UserModel } from "../models/user.js";
 
 export const orderController = {
   // Создание заказа
   async create(req, res) {
     try {
       const userId = req.user.userId;
-
-      // Получаем корзину пользователя
       const cart = await CartModel.findByUserId(userId);
       if (!cart) {
         return res.status(404).json({ error: 'Корзина не найдена' });
       }
 
-      // Получаем товары в корзине
       const cartItems = await CartItemModel.findByCartId(cart.id);
       if (!cartItems.length) {
         return res.status(400).json({ error: 'Корзина пуста' });
       }
 
-      // Рассчитываем общую сумму
       const total_amount = cartItems.reduce((sum, item) => {
         return sum + (Number(item.product.price) * item.quantity);
       }, 0);
@@ -28,8 +25,8 @@ export const orderController = {
       // Создаем заказ
       const order = await OrderModel.create({
         user_id: userId,
-        status_id: 1, // Статус "Created"
-        payment_method: "cash", // Фиксированный способ оплаты
+        status_id: 1, 
+        payment_method: "cash", 
         total_amount,
         products: cartItems.map(item => ({
           productId: item.product_id,
@@ -39,8 +36,6 @@ export const orderController = {
 
       // Очищаем корзину
       await CartItemModel.deleteByCartId(cart.id);
-      // await ReserveModel.deleteByCartId(cart.id); // TODO: Добавить модель резервирования если нужно
-
       res.json(order);
     } catch (error) {
       res.status(500).json({ 
@@ -88,11 +83,15 @@ export const orderController = {
     }
   },
 
-  // Обновление статуса заказа (для работников)
   async updateStatus(req, res) {
     try {
       const { id } = req.params;
       const { status_id } = req.body;
+      const userId = req.user.userId;
+      const user = await UserModel.getById(userId);
+      if (!user || user.role.name !== 'worker') {
+        return res.status(403).json({ error: 'Нет прав для обновления статуса заказа' });
+      }
 
       const order = await OrderModel.updateStatus(id, status_id);
       res.json(order);
@@ -104,9 +103,15 @@ export const orderController = {
     }
   },
 
-  // Получение всех заказов (для работников)
+  // Получение всех заказов (только для работников)
   async getAllOrders(req, res) {
     try {
+      const userId = req.user.userId;
+      const user = await UserModel.getById(userId);
+      if (!user || user.role.name !== 'worker') {
+        return res.status(403).json({ error: 'Нет прав для просмотра всех заказов' });
+      }
+
       const orders = await OrderModel.findAll();
       res.json(orders);
     } catch (error) {
@@ -117,10 +122,18 @@ export const orderController = {
     }
   },
 
-  // Получение заказов по статусу (для работников)
+  // Получение заказов по статусу (только для работников)
   async getOrdersByStatus(req, res) {
     try {
       const { status_id } = req.params;
+      const userId = req.user.userId;
+
+      // Проверяем, является ли пользователь работником
+      const user = await UserModel.getById(userId);
+      if (!user || user.role.name !== 'worker') {
+        return res.status(403).json({ error: 'Нет прав для просмотра заказов по статусу' });
+      }
+
       const orders = await OrderModel.findByStatus(status_id);
       res.json(orders);
     } catch (error) {

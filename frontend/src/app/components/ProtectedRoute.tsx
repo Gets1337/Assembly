@@ -1,5 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { ReactNode } from 'react';
+import { useAuthStore } from '../../modules/auth/stores/auth-store';
+import { Box, CircularProgress } from '@mui/joy';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -8,19 +10,31 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requiredRole, restrictedRole }: ProtectedRouteProps) => {
-  const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('userRole');
+  const { user, isLoading } = useAuthStore();
   const location = useLocation();
 
-  if (!token) {
+  if (isLoading) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (restrictedRole && userRole === restrictedRole) {
+  if (restrictedRole && user.role === restrictedRole) {
     return <Navigate to="/worker" replace />;
   }
 
-  if (requiredRole && userRole !== requiredRole) {
+  if (requiredRole && user.role !== requiredRole) {
     return <Navigate to="/store" replace />;
   }
 

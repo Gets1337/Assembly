@@ -78,7 +78,7 @@ export const orderService = {
   },
 
   async getOrders(): Promise<Order[]> {
-    const response = await api.get('/api/orders');
+    const response = await api.get('/api/orders/my');
     return response.data;
   },
 

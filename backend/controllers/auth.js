@@ -127,5 +127,28 @@ export const authController = {
                 }
             });
         }
+    },
+
+    async check(req, res) {
+        try {
+            const user = await UserModel.getById(req.user.userId);
+            if (!user) {
+                return res.status(404).json({ error: 'Пользователь не найден' });
+            }
+
+            res.json({
+                user: {
+                    id: user.id,
+                    login: user.login,
+                    fullName: user.fullName,
+                    birthDate: user.birthDate,
+                    role: user.role.name
+                }
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: 'Произошла ошибка при проверке аутентификации'
+            });
+        }
     }
 }; 
