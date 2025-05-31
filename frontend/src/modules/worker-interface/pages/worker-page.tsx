@@ -64,7 +64,7 @@ export const WorkerPage = () => {
           bgcolor: 'background.surface'
         }}
       >
-        <Grid xs={6}>
+        <Grid xs={4}>
           <Box
             sx={{
               p: 2,
@@ -72,7 +72,8 @@ export const WorkerPage = () => {
               borderColor: 'divider',
               borderRadius: 'md',
               height: '100%',
-              overflow: 'auto'
+              overflow: 'auto',
+              bgcolor: 'background.level1'
             }}
           >
             <Typography 
@@ -83,13 +84,13 @@ export const WorkerPage = () => {
                 fontWeight: 'bold'
               }}
             >
-              Заказы на сборку
+              Новые заказы
             </Typography>
             <OrderList status="Created" />
           </Box>
         </Grid>
         
-        <Grid xs={6}>
+        <Grid xs={4}>
           <Box
             sx={{
               p: 2,
@@ -97,7 +98,34 @@ export const WorkerPage = () => {
               borderColor: 'divider',
               borderRadius: 'md',
               height: '100%',
-              overflow: 'auto'
+              overflow: 'auto',
+              bgcolor: 'background.level2'
+            }}
+          >
+            <Typography 
+              level="h4" 
+              sx={{ 
+                mb: 2,
+                color: 'warning.500',
+                fontWeight: 'bold'
+              }}
+            >
+              В работе
+            </Typography>
+            <OrderList status="Worked" />
+          </Box>
+        </Grid>
+        
+        <Grid xs={4}>
+          <Box
+            sx={{
+              p: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 'md',
+              height: '100%',
+              overflow: 'auto',
+              bgcolor: 'background.level1'
             }}
           >
             <Typography 

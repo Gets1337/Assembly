@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useAuthStore } from '../../modules/auth/stores/auth-store';
 import { Box, CircularProgress } from '@mui/joy';
 
@@ -7,11 +7,24 @@ interface ProtectedRouteProps {
   children: ReactNode;
   requiredRole?: 'user' | 'worker';
   restrictedRole?: 'user' | 'worker';
+  requireAuth?: boolean;
 }
 
-export const ProtectedRoute = ({ children, requiredRole, restrictedRole }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ 
+  children, 
+  requiredRole, 
+  restrictedRole,
+  requireAuth = true 
+}: ProtectedRouteProps) => {
   const { user, isLoading } = useAuthStore();
   const location = useLocation();
+
+  if (!requireAuth) {
+    if (user) {
+      return <Navigate to="/" replace />;
+    }
+    return <>{children}</>;
+  }
 
   if (isLoading) {
     return (

@@ -5,11 +5,11 @@ export const UserModel = {
   async create(userData) {
     return getPrismaClient().user.create({
       data: {
-        birthDate: userData.birthDate,
-        fullName: userData.fullName,
+        birth_date: userData.birth_date,
+        full_name: userData.full_name,
         login: userData.login,
         password: userData.password,
-        role_id: userData.roleId
+        role_id: userData.role_id
       }
     });
   },
@@ -62,7 +62,13 @@ export const UserModel = {
   async update(id, updateData) {
     return getPrismaClient().user.update({
       where: { id },
-      data: updateData
+      data: {
+        birth_date: updateData.birth_date,
+        full_name: updateData.full_name,
+        login: updateData.login,
+        password: updateData.password,
+        role_id: updateData.role_id
+      }
     });
   },
 

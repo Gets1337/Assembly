@@ -4,7 +4,13 @@ export const ProductModel = {
   // Создание нового продукта
   async create(productData) {
     return getPrismaClient().product.create({
-      data: productData,
+      data: {
+        name: productData.name,
+        description: productData.description,
+        image_url: productData.image_url,
+        stock_quantity: productData.stock_quantity,
+        price: productData.price
+      },
     });
   },
 
@@ -13,9 +19,9 @@ export const ProductModel = {
     const products = await getPrismaClient().product.findMany();
     return products.map(product => ({
       id: product.id,
-      title: product.name,
+      name: product.name,
       description: product.description,
-      image: product.image_url,
+      image_url: product.image_url,
       price: Number(product.price),
       stock_quantity: product.stock_quantity
     }));
@@ -29,9 +35,9 @@ export const ProductModel = {
     if (!product) return null;
     return {
       id: product.id,
-      title: product.name,
+      name: product.name,
       description: product.description,
-      image: product.image_url,
+      image_url: product.image_url,
       price: Number(product.price),
       stock_quantity: product.stock_quantity
     };
@@ -41,7 +47,13 @@ export const ProductModel = {
   async update(id, updateData) {
     return getPrismaClient().product.update({
       where: { id },
-      data: updateData,
+      data: {
+        name: updateData.name,
+        description: updateData.description,
+        image_url: updateData.image_url,
+        stock_quantity: updateData.stock_quantity,
+        price: updateData.price
+      },
     });
   },
 

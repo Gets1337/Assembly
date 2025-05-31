@@ -4,7 +4,9 @@ export const CartModel = {
   // Создание новой корзины
   async create(data) {
     return await getPrismaClient().cart.create({
-      data,
+      data: {
+        user_id: data.user_id
+      },
       include: {
         items: {
           include: {
@@ -33,7 +35,9 @@ export const CartModel = {
   async update(id, data) {
     return await getPrismaClient().cart.update({
       where: { id },
-      data,
+      data: {
+        user_id: data.user_id
+      },
       include: {
         items: {
           include: {

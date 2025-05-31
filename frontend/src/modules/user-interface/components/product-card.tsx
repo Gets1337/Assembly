@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Card, Typography, Button, Modal, ModalDialog, ModalClose, AspectRatio, CircularProgress } from '@mui/joy';
 import { useStore } from '../store/product-store';
 import { ProductCardProps } from '../types';
@@ -7,10 +7,17 @@ import { useNavigate } from 'react-router-dom';
 export const ProductCard = ({ product }: ProductCardProps) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { addToCart } = useStore();
+  const { addToCart, cart, fetchCart } = useStore();
   const navigate = useNavigate();
+
+  // Проверяем, есть ли товар в корзине
+  const isInCart = cart.some(item => item.product.id === product.id);
+
+  useEffect(() => {
+    // Загружаем корзину при монтировании компонента
+    fetchCart();
+  }, [fetchCart]);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -21,11 +28,16 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       return;
     }
 
+    if (isInCart) {
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
       await addToCart(product);
-      setIsAddedToCart(true);
+      // Немедленно обновляем корзину после добавления
+      await fetchCart();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Ошибка при добавлении товара в корзину');
       console.error('Ошибка при добавлении в корзину:', error);
@@ -40,127 +52,123 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     <>
       <Card
         variant="outlined"
-        onClick={() => setOpen(true)}
         sx={{
           width: '100%',
-          maxWidth: '300px',
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          gap: 2,
-          p: 2,
           cursor: 'pointer',
+          border: '2px solid',
+          borderColor: isInCart ? 'success.500' : 'neutral.200',
+          transition: 'all 0.2s ease-in-out',
           '&:hover': {
-            boxShadow: 'md',
+            boxShadow: 'lg',
             transform: 'translateY(-4px)',
-            transition: 'all 0.2s ease-in-out'
-          }
+            borderColor: isInCart ? 'success.600' : 'primary.500',
+          },
         }}
+        onClick={() => setOpen(true)}
       >
-        <Box
-          sx={{
-            width: '100%',
-            height: '200px',
-            overflow: 'hidden',
-            borderRadius: 'sm',
-            bgcolor: 'background.level1'
-          }}
-        >
+        <AspectRatio ratio="1" sx={{ minWidth: 200 }}>
           <img
-            src={product.image}
-            alt={product.title}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover'
-            }}
+            src={product.image_url}
+            alt={product.name}
+            loading="lazy"
+            style={{ objectFit: 'cover' }}
           />
-        </Box>
-
-        <Box sx={{ flex: 1 }}>
-          <Typography level="title-lg" sx={{ mb: 1 }}>
-            {product.title}
+        </AspectRatio>
+        <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Typography level="title-md" sx={{ mb: 1 }}>
+            {product.name}
           </Typography>
-          <Typography level="body-sm" sx={{ mb: 2, color: 'neutral.500' }}>
+          <Typography level="body-sm" sx={{ mb: 2, flex: 1 }}>
             {product.description}
           </Typography>
-          <Typography level="title-md" sx={{ color: 'primary.500' }}>
-            {product.price} ₽
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography level="title-lg" sx={{ color: 'primary.500' }}>
+              {product.price} ₽
+            </Typography>
+            <Button
+              size="sm"
+              variant={isInCart ? "soft" : "solid"}
+              color={isInCart ? "success" : "primary"}
+              onClick={handleAddToCart}
+              disabled={isOutOfStock || isInCart || isLoading}
+              loading={isLoading}
+              sx={{
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                }
+              }}
+            >
+              {isInCart ? 'В корзине' : isOutOfStock ? 'Нет в наличии' : 'В корзину'}
+            </Button>
+          </Box>
         </Box>
-
-        {error && (
-          <Typography color="danger" level="body-sm">
-            {error}
-          </Typography>
-        )}
-
-        <Button
-          onClick={handleAddToCart}
-          disabled={isLoading || isOutOfStock || isAddedToCart}
-          sx={{
-            background: isAddedToCart 
-              ? 'linear-gradient(45deg, #4CAF50 30%, #81C784 90%)'
-              : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-            boxShadow: isAddedToCart
-              ? '0 3px 5px 2px rgba(76, 175, 80, .3)'
-              : '0 3px 5px 2px rgba(33, 203, 243, .3)',
-            color: 'white',
-            fontWeight: 'bold',
-            '&:hover': {
-              background: isAddedToCart
-                ? 'linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)'
-                : 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
-            },
-            '&.Mui-disabled': {
-              color: 'rgba(255, 255, 255, 0.7)',
-              background: isAddedToCart 
-                ? 'linear-gradient(45deg, #4CAF50 30%, #81C784 90%)'
-                : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-            }
-          }}
-        >
-          {isLoading ? (
-            <CircularProgress size="sm" />
-          ) : isOutOfStock ? (
-            'Нет в наличии'
-          ) : isAddedToCart ? (
-            'Добавлено в корзину'
-          ) : (
-            'В корзину'
-          )}
-        </Button>
       </Card>
 
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-      >
+      <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog
-          variant="outlined"
+          aria-labelledby="product-dialog"
           sx={{
             maxWidth: 500,
-            borderRadius: 'md',
-            p: 3,
-            boxShadow: 'lg',
+            width: '100%',
+            overflow: 'auto',
           }}
         >
           <ModalClose />
-          <Typography level="title-lg" sx={{ mb: 1 }}>
-            {product.title}
-          </Typography>
-          <AspectRatio minHeight="300px" maxHeight="300px" sx={{ my: 2 }}>
-            <img src={product.image} alt={product.title} />
-          </AspectRatio>
-          <Typography level="body-md" sx={{ mb: 2 }}>
-            {product.description}
-          </Typography>
-          <Typography level="title-lg" sx={{ mb: 1 }}>
-            {product.price} ₽
-          </Typography>
-          <Typography level="body-sm" sx={{ color: isOutOfStock ? 'danger.500' : 'success.500', mb: 2 }}>
-            {isOutOfStock ? 'Нет в наличии' : `В наличии: ${product.stock_quantity} шт.`}
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <AspectRatio 
+              ratio="4/3" 
+              sx={{ 
+                minWidth: 200,
+                maxWidth: '100%',
+                borderRadius: 'md',
+                overflow: 'hidden'
+              }}
+            >
+              <img
+                src={product.image_url}
+                alt={product.name}
+                loading="lazy"
+                style={{ 
+                  objectFit: 'contain',
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'background.level1'
+                }}
+              />
+            </AspectRatio>
+            <Typography level="h4">{product.name}</Typography>
+            <Typography level="body-lg">{product.description}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography level="h3" sx={{ color: 'primary.500' }}>
+                {product.price} ₽
+              </Typography>
+              <Button
+                size="lg"
+                variant={isInCart ? "soft" : "solid"}
+                color={isInCart ? "success" : "primary"}
+                onClick={handleAddToCart}
+                disabled={isOutOfStock || isInCart || isLoading}
+                loading={isLoading}
+                sx={{
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                  }
+                }}
+              >
+                {isInCart ? 'В корзине' : isOutOfStock ? 'Нет в наличии' : 'В корзину'}
+              </Button>
+            </Box>
+            {error && (
+              <Typography color="danger" level="body-sm">
+                {error}
+              </Typography>
+            )}
+          </Box>
         </ModalDialog>
       </Modal>
     </>

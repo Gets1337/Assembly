@@ -8,12 +8,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 export const authController = {
     async register(req, res) {
         try {
-            const { login, password, fullName, birthDate } = req.body;
+            const { login, password, full_name, birth_date } = req.body;
             const validationErrors = validateRegistration({
                 login,
                 password,
-                fullName: fullName,
-                birthDate: birthDate
+                full_name,
+                birth_date
             });
 
             if (Object.keys(validationErrors).length > 0) {
@@ -41,9 +41,9 @@ export const authController = {
             const user = await UserModel.create({
                 login,
                 password: hashedPassword,
-                fullName,
-                birthDate: new Date(birthDate),
-                roleId: userRole.id
+                full_name,
+                birth_date: new Date(birth_date),
+                role_id: userRole.id
             });
 
             const token = jwt.sign(
@@ -57,8 +57,8 @@ export const authController = {
                 user: {
                     id: user.id,
                     login: user.login,
-                    fullName: user.fullName,
-                    birthDate: user.birthDate,
+                    full_name: user.full_name,
+                    birth_date: user.birth_date,
                     role: userRole.name
                 }
             });
@@ -115,8 +115,8 @@ export const authController = {
                 user: {
                     id: user.id,
                     login: user.login,
-                    fullName: user.fullName,
-                    birthDate: user.birthDate,
+                    full_name: user.full_name,
+                    birth_date: user.birth_date,
                     role: user.role.name
                 }
             });
@@ -140,8 +140,8 @@ export const authController = {
                 user: {
                     id: user.id,
                     login: user.login,
-                    fullName: user.fullName,
-                    birthDate: user.birthDate,
+                    full_name: user.full_name,
+                    birth_date: user.birth_date,
                     role: user.role.name
                 }
             });

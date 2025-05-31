@@ -7,7 +7,7 @@ import { OrderModal } from './order-modal';
 import { orderService } from '../services/order-service';
 import { useNavigate } from 'react-router-dom';
 
-export const Cart = ({ onCheckout }: CartProps) => {
+export const Cart = ({}: CartProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -33,6 +33,14 @@ export const Cart = ({ onCheckout }: CartProps) => {
   const handleUpdateQuantity = async (itemId: number, newQuantity: number) => {
     setError(null);
     try {
+      const item = cart.find(item => item.id === itemId);
+      if (!item) return;
+
+      if (newQuantity > item.product.stock_quantity) {
+        setError('Превышено максимальное количество товара');
+        return;
+      }
+
       await updateQuantity(itemId, newQuantity);
     } catch (error) {
       setError('Ошибка при обновлении количества товара');
@@ -67,7 +75,6 @@ export const Cart = ({ onCheckout }: CartProps) => {
       navigate('/orders');
     } catch (error) {
       setError('Ошибка при оформлении заказа');
-      console.error('Ошибка при оформлении заказа:', error);
     } finally {
       setIsLoading(false);
     }
@@ -137,8 +144,8 @@ export const Cart = ({ onCheckout }: CartProps) => {
                   }}
                 >
                   <img
-                    src={item.product.image}
-                    alt={item.product.title}
+                    src={item.product.image_url}
+                    alt={item.product.name}
                     style={{
                       width: '100%',
                       height: '100%',
@@ -147,7 +154,7 @@ export const Cart = ({ onCheckout }: CartProps) => {
                   />
                 </Box>
                 <Box sx={{ flex: 1 }}>
-                  <Typography level="title-md">{item.product.title}</Typography>
+                  <Typography level="title-md">{item.product.name}</Typography>
                   <Typography level="body-sm" sx={{ color: 'neutral.500' }}>
                     {item.product.price} ₽
                   </Typography>
@@ -167,6 +174,7 @@ export const Cart = ({ onCheckout }: CartProps) => {
                     variant="outlined"
                     size="sm"
                     onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                    disabled={item.quantity >= item.product.stock_quantity}
                   >
                     +
                   </Button>
