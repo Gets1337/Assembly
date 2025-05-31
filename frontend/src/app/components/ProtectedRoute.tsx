@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { useAuthStore } from '../../modules/auth/stores/auth-store';
 import { Box, CircularProgress } from '@mui/joy';
 

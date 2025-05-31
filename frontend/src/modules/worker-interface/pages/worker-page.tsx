@@ -1,12 +1,14 @@
 import { Box, Button, Typography, Grid } from '@mui/joy';
 import { useNavigate } from 'react-router-dom';
 import { OrderList } from '../components/order-list';
+import { useAuthStore } from '../../auth/stores/auth-store';
 
 export const WorkerPage = () => {
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 

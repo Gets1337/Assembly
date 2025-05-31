@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Card, Typography, Button, Modal, ModalDialog, ModalClose, AspectRatio, CircularProgress } from '@mui/joy';
+import { Box, Card, Typography, Button, Modal, ModalDialog, ModalClose, AspectRatio } from '@mui/joy';
 import { useStore } from '../store/product-store';
 import { ProductCardProps } from '../types';
 import { useNavigate } from 'react-router-dom';
@@ -11,11 +11,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart, cart, fetchCart } = useStore();
   const navigate = useNavigate();
 
-  // Проверяем, есть ли товар в корзине
   const isInCart = cart.some(item => item.product.id === product.id);
 
   useEffect(() => {
-    // Загружаем корзину при монтировании компонента
     fetchCart();
   }, [fetchCart]);
 
@@ -36,7 +34,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     setError(null);
     try {
       await addToCart(product);
-      // Немедленно обновляем корзину после добавления
       await fetchCart();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Ошибка при добавлении товара в корзину');

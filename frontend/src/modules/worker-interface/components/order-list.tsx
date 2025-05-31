@@ -8,19 +8,6 @@ interface OrderListProps {
   status: OrderStatus;
 }
 
-const getNextStatus = (currentStatus: OrderStatus): OrderStatus => {
-  switch (currentStatus) {
-    case 'Created':
-      return 'Worked';
-    case 'Worked':
-      return 'Ready';
-    case 'Ready':
-      return 'Issued';
-    default:
-      return currentStatus;
-  }
-};
-
 const getStatusButtonText = (status: OrderStatus): string => {
   switch (status) {
     case 'Created':
@@ -59,7 +46,6 @@ export const OrderList = ({ status }: OrderListProps) => {
 
   const orders = ordersByStatus[status] || [];
 
-  // Функция загрузки заказов
   const loadOrders = async () => {
     try {
       setLoading(true);
@@ -72,12 +58,10 @@ export const OrderList = ({ status }: OrderListProps) => {
     }
   };
 
-  // Начальная загрузка
   useEffect(() => {
     loadOrders();
   }, [status, fetchOrdersByStatus]);
 
-  // Автоматическое обновление каждые 30 секунд
   useEffect(() => {
     const interval = setInterval(loadOrders, 30000);
     return () => clearInterval(interval);
@@ -129,7 +113,6 @@ export const OrderList = ({ status }: OrderListProps) => {
       setIsModalOpen(false);
       setSelectedOrder(null);
       
-      // Обновляем список заказов после завершения сборки
       await loadOrders();
     } catch (err) {
       setError('Не удалось завершить сборку');
