@@ -45,6 +45,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       
       localStorage.setItem('token', response.token);
       set({ user: userData });
+      return response;
     } catch (error) {
       throw error;
     }

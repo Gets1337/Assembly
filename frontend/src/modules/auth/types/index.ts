@@ -20,10 +20,15 @@ export interface User {
     role: string;
   }
   
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
 export interface AuthState {
     user: User | null;
     isLoading: boolean;
-    login: (login: string, password: string) => Promise<void>;
+    login: (login: string, password: string) => Promise<AuthResponse>;
     register: (login: string, password: string, full_name: string, birth_date: string) => Promise<void>;
     logout: () => void;
     initializeAuth: () => Promise<void>;

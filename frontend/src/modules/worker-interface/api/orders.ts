@@ -1,4 +1,4 @@
-import { Order, OrderStatus } from '../../../types/order';
+import { Order, OrderStatus } from '../types/order';
 import api from '../../auth/api/api';
 
 const STATUS_TO_ID: Record<OrderStatus, number> = {

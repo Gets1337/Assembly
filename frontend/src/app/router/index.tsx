@@ -5,6 +5,7 @@ import { HomePage } from "../../modules/user-interface/pages/home-page";
 import { CartPage } from "../../modules/user-interface/pages/cart-page";
 import { OrdersPage } from "../../modules/user-interface/pages/orders-page";
 import { WorkerPage } from "../../modules/worker-interface/pages/worker-page";
+import { AdminPage } from "../../modules/admin-interface/pages/AdminPage";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { UserLayout } from "../../modules/user-interface/components/user-layout";
 
@@ -48,6 +49,15 @@ const Router: React.FC = () => {
                     element={
                         <ProtectedRoute requiredRole="worker">
                             <WorkerPage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin"
+                    element={
+                        <ProtectedRoute requiredRole="admin">
+                            <AdminPage />
                         </ProtectedRoute>
                     }
                 />

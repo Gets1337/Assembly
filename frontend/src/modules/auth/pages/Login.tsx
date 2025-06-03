@@ -45,8 +45,15 @@ export function Login() {
     setIsLoading(true);
     
     try {
-      await authLogin(login, password);
-      navigate('/store');
+      const response = await authLogin(login, password);
+      // Перенаправление в зависимости от роли
+      if (response.user.role === 'admin') {
+        navigate('/admin');
+      } else if (response.user.role === 'worker') {
+        navigate('/worker');
+      } else {
+        navigate('/store');
+      }
     } catch (err: any) {
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors);

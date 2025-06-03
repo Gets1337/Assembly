@@ -5,8 +5,8 @@ import { Box, CircularProgress } from '@mui/joy';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: 'user' | 'worker';
-  restrictedRole?: 'user' | 'worker';
+  requiredRole?: 'user' | 'worker' | 'admin';
+  restrictedRole?: 'user' | 'worker' | 'admin';
   requireAuth?: boolean;
 }
 
@@ -44,10 +44,16 @@ export const ProtectedRoute = ({
   }
 
   if (restrictedRole && user.role === restrictedRole) {
+    if (user.role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/worker" replace />;
   }
 
   if (requiredRole && user.role !== requiredRole) {
+    if (user.role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/store" replace />;
   }
 
