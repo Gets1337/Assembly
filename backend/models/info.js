@@ -23,7 +23,10 @@ export const InfoModel = {
   async update(id, infoData) {
     return getPrismaClient().info.update({
       where: { id },
-      data: infoData,
+      data: {
+        key: infoData.key,
+        value: infoData.value
+      },
     });
   },
 

@@ -25,7 +25,7 @@ export const productService = {
 
   async addToCart(productId: number): Promise<CartItem[]> {
     const response = await api.post('/api/cart/items', {
-      productId,
+      product_id: productId,
       quantity: 1
     });
     return response.data.items || [];

@@ -4,15 +4,12 @@ export interface ProductCardProps {
 
 export interface Product {
     id: number;
-    title: string;
+    name: string;
     description: string;
     price: number;
-    image: string;
-    stock_quantity: number;
-    name: string;
     image_url: string;
+    stock_quantity: number;
     category: string;
-    stock: number;
 }
 
 export interface CartItem {

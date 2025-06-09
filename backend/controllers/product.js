@@ -4,8 +4,14 @@ export const productController = {
   // Создание нового продукта
   async create(req, res) {
     try {
-      const productData = req.body;
-      const product = await ProductModel.create(productData);
+      const { name, description, image_url, stock_quantity, price } = req.body;
+      const product = await ProductModel.create({
+        name,
+        description,
+        image_url,
+        stock_quantity,
+        price
+      });
       res.status(201).json(product);
     } catch (error) {
       res.status(500).json({ error: 'Ошибка при создании продукта' });
@@ -39,9 +45,15 @@ export const productController = {
   // Обновление продукта
   async update(req, res) {
     const { id } = req.params;
-    const updateData = req.body;
+    const { name, description, image_url, stock_quantity, price } = req.body;
     try {
-      const updatedProduct = await ProductModel.update(Number(id), updateData);
+      const updatedProduct = await ProductModel.update(Number(id), {
+        name,
+        description,
+        image_url,
+        stock_quantity,
+        price
+      });
       if (!updatedProduct) {
         return res.status(404).json({ error: 'Продукт не найден' });
       }

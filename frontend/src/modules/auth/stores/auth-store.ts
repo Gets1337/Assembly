@@ -14,8 +14,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         const userData: User = {
           id: response.user.id,
           login: response.user.login,
-          fullName: response.user.fullName,
-          birthDate: response.user.birthDate,
+          full_name: response.user.full_name,
+          birth_date: response.user.birth_date,
           role: response.user.role
         };
         set({ user: userData, isLoading: false });
@@ -38,8 +38,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const userData: User = {
         id: response.user.id,
         login: response.user.login,
-        fullName: response.user.fullName,
-        birthDate: response.user.birthDate,
+        full_name: response.user.full_name,
+        birth_date: response.user.birth_date,
         role: response.user.role
       };
       
@@ -50,21 +50,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  register: async (login: string, password: string, fullName: string, birthDate: string) => {
+  register: async (login: string, password: string, full_name: string, birth_date: string) => {
     try {
       const response = await authAPI.register({
         login,
         password,
-        fullName,
-        birthDate,
+        full_name,
+        birth_date,
       });
       
       if (response.token) {
         const userData: User = {
           id: response.user.id,
           login: response.user.login,
-          fullName: response.user.fullName,
-          birthDate: response.user.birthDate,
+          full_name: response.user.full_name,
+          birth_date: response.user.birth_date,
           role: response.user.role
         };
         

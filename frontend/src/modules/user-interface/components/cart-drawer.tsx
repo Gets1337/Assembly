@@ -5,6 +5,18 @@ import { CartDrawerProps } from '../types';
 export const CartDrawer = ({ open, onClose, items, onUpdateQuantity, onRemoveItem }: CartDrawerProps) => {
   const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
+  const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
+    const item = items.find(item => item.id === itemId);
+    if (!item) return;
+
+    // Проверяем, не превышает ли новое количество доступное количество на складе
+    if (newQuantity > item.product.stock_quantity) {
+      return;
+    }
+
+    onUpdateQuantity(itemId, newQuantity);
+  };
+
   return (
     <Drawer
       open={open}
@@ -36,18 +48,18 @@ export const CartDrawer = ({ open, onClose, items, onUpdateQuantity, onRemoveIte
             }}
           >
             <img
-              src={item.product.image}
-              alt={item.product.title}
+              src={item.product.image_url}
+              alt={item.product.name}
               style={{ width: 80, height: 80, objectFit: 'cover' }}
             />
             <Box sx={{ flex: 1 }}>
-              <Typography level="title-md">{item.product.title}</Typography>
+              <Typography level="title-md">{item.product.name}</Typography>
               <Typography level="body-sm">{item.product.price} ₽</Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                 <Button
                   size="sm"
                   variant="outlined"
-                  onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
                 >
                   -
@@ -58,7 +70,8 @@ export const CartDrawer = ({ open, onClose, items, onUpdateQuantity, onRemoveIte
                 <Button
                   size="sm"
                   variant="outlined"
-                  onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                  disabled={item.quantity >= item.product.stock_quantity}
                 >
                   +
                 </Button>

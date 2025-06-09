@@ -11,7 +11,7 @@ export const OrderModel = {
         total_amount: Number(data.total_amount),
         products: {
           create: data.products.map(product => ({
-            productId: Number(product.productId),
+            product_id: Number(product.product_id),
             quantity: Number(product.quantity)
           }))
         }
@@ -84,9 +84,9 @@ export const OrderModel = {
     // Создаем запись в истории
     await getPrismaClient().orderHistory.create({
       data: {
-        orderId: Number(id),
-        currentStatusId: order.status_id,
-        newStatusId: Number(newStatusId)
+        order_id: Number(id),
+        current_status_id: order.status_id,
+        new_status_id: newStatusId
       }
     });
 
@@ -94,7 +94,7 @@ export const OrderModel = {
     return await getPrismaClient().order.update({
       where: { id: Number(id) },
       data: {
-        status_id: Number(newStatusId)
+        status_id: newStatusId
       },
       include: {
         products: {
@@ -103,6 +103,7 @@ export const OrderModel = {
           }
         },
         status: true,
+        user: true,
         history: {
           include: {
             current_status: true,
@@ -173,9 +174,9 @@ export const OrderModel = {
   async createHistoryRecord(orderId, currentStatusId, newStatusId) {
     return getPrismaClient().orderHistory.create({
       data: {
-        orderId: Number(orderId),
-        currentStatusId,
-        newStatusId
+        order_id: Number(orderId),
+        current_status_id: currentStatusId,
+        new_status_id: newStatusId
       }
     });
   },
@@ -218,12 +219,12 @@ export const OrderModel = {
 
   // Удаление заказа
   async delete(id) {
-    await getPrismaClient().orderProduct.deleteMany({
-      where: { orderId: Number(id) }
+    await getPrismaClient().productInOrder.deleteMany({
+      where: { order_id: Number(id) }
     });
 
     await getPrismaClient().orderHistory.deleteMany({
-      where: { orderId: Number(id) }
+      where: { order_id: Number(id) }
     });
 
     return await getPrismaClient().order.delete({

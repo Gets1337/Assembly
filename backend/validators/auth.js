@@ -25,26 +25,26 @@ export const validateRegistration = (data) => {
     }
 
     // Проверка имени
-    if (!data.fullName) {
-        errors.fullName = 'Имя обязательно';
-    } else if (data.fullName.length < 2) {
-        errors.fullName = 'Имя должно содержать минимум 2 символа';
+    if (!data.full_name) {
+        errors.full_name = 'Имя обязательно';
+    } else if (data.full_name.length < 2) {
+        errors.full_name = 'Имя должно содержать минимум 2 символа';
     }
 
     // Проверка даты рождения
-    if (!data.birthDate) {
-        errors.birthDate = 'Дата рождения обязательна';
+    if (!data.birth_date) {
+        errors.birth_date = 'Дата рождения обязательна';
     } else {
-        const birthDate = new Date(data.birthDate);
+        const birthDate = new Date(data.birth_date);
         const today = new Date();
         const age = today.getFullYear() - birthDate.getFullYear();
         
         if (isNaN(birthDate.getTime())) {
-            errors.birthDate = 'Некорректная дата рождения';
+            errors.birth_date = 'Некорректная дата рождения';
         } else if (birthDate.getFullYear() < 1900) {
-            errors.birthDate = 'Год рождения не может быть меньше 1900';
+            errors.birth_date = 'Год рождения не может быть меньше 1900';
         } else if (age < 18) {
-            errors.birthDate = 'Возраст должен быть не менее 18 лет';
+            errors.birth_date = 'Возраст должен быть не менее 18 лет';
         }
     }
 

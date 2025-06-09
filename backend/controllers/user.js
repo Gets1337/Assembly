@@ -4,8 +4,14 @@ export const userController = {
   // Создание нового пользователя
   async create(req, res) {
     try {
-      const userData = req.body;
-      const user = await UserModel.create(userData);
+      const { login, password, full_name, birth_date, role_id } = req.body;
+      const user = await UserModel.create({
+        login,
+        password,
+        full_name,
+        birth_date,
+        role_id
+      });
       res.status(201).json(user);
     } catch (error) {
       res.status(500).json({ error: 'Ошибка при создании пользователя' });
@@ -39,9 +45,15 @@ export const userController = {
   // Обновление данных пользователя
   async update(req, res) {
     const { id } = req.params;
-    const updateData = req.body;
+    const { login, password, full_name, birth_date, role_id } = req.body;
     try {
-      const updatedUser = await UserModel.update(Number(id), updateData);
+      const updatedUser = await UserModel.update(Number(id), {
+        login,
+        password,
+        full_name,
+        birth_date,
+        role_id
+      });
       if (!updatedUser) {
         return res.status(404).json({ error: 'Пользователь не найден' });
       }

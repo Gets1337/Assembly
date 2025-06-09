@@ -2,6 +2,7 @@ import { OrderModel } from "../models/order.js";
 import { CartModel } from "../models/cart.js";
 import { CartItemModel } from "../models/cartItem.js";
 import { UserModel } from "../models/user.js";
+import { ReserveModel } from "../models/reserve.js";
 
 export const orderController = {
   // Создание заказа
@@ -29,13 +30,17 @@ export const orderController = {
         payment_method: "cash", 
         total_amount,
         products: cartItems.map(item => ({
-          productId: item.product_id,
+          product_id: item.product_id,
           quantity: item.quantity
         }))
       });
 
       // Очищаем корзину
       await CartItemModel.deleteByCartId(cart.id);
+      
+      // Очищаем резервы пользователя
+      await ReserveModel.deleteByUserId(userId);
+
       res.json(order);
     } catch (error) {
       res.status(500).json({ 

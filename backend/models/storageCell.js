@@ -12,13 +12,28 @@ export const StorageCellModel = {
 
   // Получение всех ячеек
   async getAll() {
-    return getPrismaClient().storageCell.findMany();
+    return getPrismaClient().storageCell.findMany({
+      include: {
+        products: {
+          include: {
+            product: true
+          }
+        }
+      }
+    });
   },
 
   // Получение ячейки по ID
   async getById(id) {
     return getPrismaClient().storageCell.findUnique({
       where: { id },
+      include: {
+        products: {
+          include: {
+            product: true
+          }
+        }
+      }
     });
   },
 
@@ -26,7 +41,9 @@ export const StorageCellModel = {
   async update(id, cellData) {
     return getPrismaClient().storageCell.update({
       where: { id },
-      data: cellData,
+      data: {
+        description: cellData.description
+      },
     });
   },
 

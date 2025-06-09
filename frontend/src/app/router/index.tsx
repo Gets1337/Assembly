@@ -6,17 +6,28 @@ import { CartPage } from "../../modules/user-interface/pages/cart-page";
 import { OrdersPage } from "../../modules/user-interface/pages/orders-page";
 import { WorkerPage } from "../../modules/worker-interface/pages/worker-page";
 import { ProtectedRoute } from "../components/ProtectedRoute";
-import { useAuthStore } from "../../modules/auth/stores/auth-store";
 import { UserLayout } from "../../modules/user-interface/components/user-layout";
 
 const Router: React.FC = () => {
-    const { user } = useAuthStore();
-
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route 
+                    path="/login" 
+                    element={
+                        <ProtectedRoute requireAuth={false}>
+                            <Login />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/register" 
+                    element={
+                        <ProtectedRoute requireAuth={false}>
+                            <Register />
+                        </ProtectedRoute>
+                    } 
+                />
                 
                 <Route
                     path="/"
