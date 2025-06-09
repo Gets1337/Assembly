@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Order, OrderStatus } from '../types/order';
-import { ordersApi } from '../modules/worker-interface/api/orders';
+import { ordersApi } from '../api/orders';
 
 interface OrderStore {
   ordersByStatus: Record<OrderStatus, Order[]>;

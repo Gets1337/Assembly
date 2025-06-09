@@ -1,7 +1,7 @@
 import { Box, Typography, Button, List, ListItem, ListItemContent, ListItemDecorator, Modal, ModalDialog, ModalClose, AspectRatio } from '@mui/joy';
 import { useEffect, useState } from 'react';
-import { Order, OrderStatus } from '../../../types/order';
-import { useOrderStore } from '../../../store/orderStore';
+import { Order, OrderStatus } from '../types/order';
+import { useOrderStore } from '../store/orderStore';
 import { OrderItemsModal } from './order-items-modal';
 
 interface OrderListProps {

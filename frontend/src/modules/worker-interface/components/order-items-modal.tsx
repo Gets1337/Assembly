@@ -1,5 +1,5 @@
 import { Modal, ModalDialog, ModalClose, Typography, List, ListItem, ListItemContent, Button, Checkbox, AspectRatio } from '@mui/joy';
-import { Order } from '../../../types/order';
+import { Order } from '../types/order';
 import { useState, useEffect } from 'react';
 
 interface OrderItemsModalProps {
@@ -14,7 +14,6 @@ export const OrderItemsModal = ({ order, open, onClose, onComplete }: OrderItems
 
   useEffect(() => {
     if (order) {
-      // Всегда инициализируем чекбоксы как неотмеченные
       const initialState = order.products.reduce((acc, item) => ({
         ...acc,
         [item.id]: false

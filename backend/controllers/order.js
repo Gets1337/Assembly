@@ -108,12 +108,12 @@ export const orderController = {
     }
   },
 
-  // Получение всех заказов (только для работников)
+  // Получение всех заказов (для работников и админов)
   async getAllOrders(req, res) {
     try {
       const userId = req.user.userId;
       const user = await UserModel.getById(userId);
-      if (!user || user.role.name !== 'worker') {
+      if (!user || (user.role.name !== 'worker' && user.role.name !== 'admin')) {
         return res.status(403).json({ error: 'Нет прав для просмотра всех заказов' });
       }
 
@@ -127,15 +127,15 @@ export const orderController = {
     }
   },
 
-  // Получение заказов по статусу (только для работников)
+  // Получение заказов по статусу (для работников и админов)
   async getOrdersByStatus(req, res) {
     try {
       const { status_id } = req.params;
       const userId = req.user.userId;
 
-      // Проверяем, является ли пользователь работником
+      // Проверяем, является ли пользователь работником или админом
       const user = await UserModel.getById(userId);
-      if (!user || user.role.name !== 'worker') {
+      if (!user || (user.role.name !== 'worker' && user.role.name !== 'admin')) {
         return res.status(403).json({ error: 'Нет прав для просмотра заказов по статусу' });
       }
 

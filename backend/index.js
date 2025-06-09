@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { info, storageCell, user, product, order, auth, cart } from './routes/index.js';
+import { info, storageCell, user, product, order, auth, cart, admin } from './routes/index.js';
 
 const app = express();
 const port = 3000;
@@ -24,6 +24,7 @@ app.use('/api/products', product);
 app.use('/api/orders', order);
 app.use('/api/cart', cart);
 app.use('/api/auth', auth);
+app.use('/api/admin', admin);
 
 app.listen(port, () => {
   console.log(`Сервер запущен на порту: ${port}`);
