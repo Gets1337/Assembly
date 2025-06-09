@@ -33,6 +33,11 @@ export const authAPI = {
     const response = await api.post('/api/auth/register', userData);
     return response.data;
   },
+
+  checkAuth: async () => {
+    const response = await api.get('/api/auth/check');
+    return response.data;
+  },
 };
 
 export default api; 

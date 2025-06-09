@@ -18,4 +18,4 @@ router.put('/:id', storageCellController.update);
 // Маршрут для удаления ячейки
 router.delete('/:id', storageCellController.delete);
 
-export default router;
+export { router as storageCell };

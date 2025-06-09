@@ -18,4 +18,4 @@ router.put('/:id', infoController.update);
 // Маршрут для удаления записи
 router.delete('/:id', infoController.delete);
 
-export default router;
+export { router as info };

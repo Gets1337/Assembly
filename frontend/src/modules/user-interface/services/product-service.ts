@@ -9,7 +9,18 @@ export const productService = {
 
   async fetchCart(): Promise<CartItem[]> {
     const response = await api.get('/api/cart');
-    return response.data.items || [];
+    const cartItems = response.data.items || [];
+    const itemsWithProducts = await Promise.all(
+      cartItems.map(async (item: any) => {
+        const productResponse = await api.get(`/api/products/${item.product_id}`);
+        return {
+          ...item,
+          product: productResponse.data
+        };
+      })
+    );
+    
+    return itemsWithProducts;
   },
 
   async addToCart(productId: number): Promise<CartItem[]> {
@@ -23,7 +34,19 @@ export const productService = {
   async updateQuantity(itemId: number, quantity: number): Promise<CartItem[]> {
     await api.put(`/api/cart/items/${itemId}`, { quantity });
     const response = await api.get('/api/cart');
-    return response.data.items || [];
+    const cartItems = response.data.items || [];
+    
+    const itemsWithProducts = await Promise.all(
+      cartItems.map(async (item: any) => {
+        const productResponse = await api.get(`/api/products/${item.product_id}`);
+        return {
+          ...item,
+          product: productResponse.data
+        };
+      })
+    );
+    
+    return itemsWithProducts;
   },
 
   async removeFromCart(itemId: number): Promise<CartItem[]> {

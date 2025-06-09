@@ -9,6 +9,10 @@ export interface Product {
     price: number;
     image: string;
     stock_quantity: number;
+    name: string;
+    image_url: string;
+    category: string;
+    stock: number;
 }
 
 export interface CartItem {
@@ -48,14 +52,52 @@ export interface UIStore {
     setAnchorEl: (element: HTMLElement | null) => void;
 }
 
-export interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  image: string;
-  stock_quantity: number;
-} 
+export interface CreateOrderRequest {
+  items: {
+    product_id: number;
+    quantity: number;
+  }[];
+  user_id: number;
+  payment_method: 'cash';
+}
 
+export interface Order {
+  id: number;
+  user_id: number;
+  status: {
+    id: number;
+    name: string;
+  };
+  total_amount: number;
+  created_at: string;
+  payment_method: 'card' | 'cash';
+  products: {
+    id: number;
+    product: Product;
+    quantity: number;
+  }[];
+}
+
+export interface OrderModalProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  totalAmount: number;
+}
+
+export interface ProductInOrder {
+  id: number;
+  product: Product;
+  quantity: number;
+}
+
+export const ORDER_STATUS = {
+  CREATED: 'Создан',
+  WORKED: 'В работе',
+  READY: 'Готов к выдаче',
+  ISSUED: 'Выдан',
+} as const;
+
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS]; 
 
   

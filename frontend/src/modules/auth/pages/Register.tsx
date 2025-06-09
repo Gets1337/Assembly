@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/auth-store';
+import { validateRegistration } from '../utils/validation';
 import {
   Box,
   Button,
@@ -13,6 +14,13 @@ import {
   Divider,
 } from '@mui/joy';
 
+interface ValidationErrors {
+  login?: string;
+  password?: string;
+  fullName?: string;
+  birthDate?: string;
+}
+
 export function Register() {
   const navigate = useNavigate();
   const { register } = useAuthStore();
@@ -20,19 +28,39 @@ export function Register() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState('');
-  const [localError, setLocalError] = useState('');
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocalError('');
+    setErrors({});
+    
+    // Валидация данных
+    const validationErrors = validateRegistration({
+      login,
+      password,
+      fullName,
+      birthDate
+    });
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       await register(login, password, fullName, birthDate);
       navigate('/store');
-    } catch (err) {
-      setLocalError('Ошибка при регистрации. Возможно, пользователь с таким логином уже существует.');
+    } catch (err: any) {
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+      } else {
+        setErrors({
+          login: 'Ошибка при регистрации. Возможно, пользователь с таким логином уже существует.'
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +128,7 @@ export function Register() {
         <Divider />
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <FormControl>
+          <FormControl error={!!errors.fullName}>
             <FormLabel>Полное имя</FormLabel>
             <Input
               placeholder="Введите полное имя"
@@ -112,9 +140,14 @@ export function Register() {
                 '--Input-radius': '8px',
               }}
             />
+            {errors.fullName && (
+              <Typography color="danger" fontSize="sm" sx={{ mt: 0.5 }}>
+                {errors.fullName}
+              </Typography>
+            )}
           </FormControl>
 
-          <FormControl>
+          <FormControl error={!!errors.birthDate}>
             <FormLabel>Дата рождения</FormLabel>
             <Input
               type="date"
@@ -126,9 +159,14 @@ export function Register() {
                 '--Input-radius': '8px',
               }}
             />
+            {errors.birthDate && (
+              <Typography color="danger" fontSize="sm" sx={{ mt: 0.5 }}>
+                {errors.birthDate}
+              </Typography>
+            )}
           </FormControl>
 
-          <FormControl>
+          <FormControl error={!!errors.login}>
             <FormLabel>Логин</FormLabel>
             <Input
               placeholder="Введите логин"
@@ -140,9 +178,14 @@ export function Register() {
                 '--Input-radius': '8px',
               }}
             />
+            {errors.login && (
+              <Typography color="danger" fontSize="sm" sx={{ mt: 0.5 }}>
+                {errors.login}
+              </Typography>
+            )}
           </FormControl>
 
-          <FormControl>
+          <FormControl error={!!errors.password}>
             <FormLabel>Пароль</FormLabel>
             <Input
               placeholder="Введите пароль"
@@ -155,22 +198,12 @@ export function Register() {
                 '--Input-radius': '8px',
               }}
             />
+            {errors.password && (
+              <Typography color="danger" fontSize="sm" sx={{ mt: 0.5 }}>
+                {errors.password}
+              </Typography>
+            )}
           </FormControl>
-
-          {(localError) && (
-            <Typography 
-              color="danger" 
-              fontSize="sm"
-              sx={{ 
-                textAlign: 'center',
-                bgcolor: 'danger.softBg',
-                p: 1,
-                borderRadius: 'sm',
-              }}
-            >
-              {localError}
-            </Typography>
-          )}
 
           <Button
             type="submit"

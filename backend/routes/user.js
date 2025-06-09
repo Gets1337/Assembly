@@ -18,4 +18,4 @@ router.put('/:id', userController.update);
 // Маршрут для удаления пользователя
 router.delete('/:id', userController.delete);
 
-export default router;
+export { router as user };

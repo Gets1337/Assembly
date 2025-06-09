@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 export const ProductCard = ({ product }: ProductCardProps) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useStore();
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     setError(null);
     try {
       await addToCart(product);
+      setIsAddedToCart(true);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Ошибка при добавлении товара в корзину');
       console.error('Ошибка при добавлении в корзину:', error);
@@ -94,19 +96,35 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
         <Button
           onClick={handleAddToCart}
-          disabled={isLoading || isOutOfStock}
+          disabled={isLoading || isOutOfStock || isAddedToCart}
           sx={{
-            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-            boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+            background: isAddedToCart 
+              ? 'linear-gradient(45deg, #4CAF50 30%, #81C784 90%)'
+              : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            boxShadow: isAddedToCart
+              ? '0 3px 5px 2px rgba(76, 175, 80, .3)'
+              : '0 3px 5px 2px rgba(33, 203, 243, .3)',
+            color: 'white',
+            fontWeight: 'bold',
             '&:hover': {
-              background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+              background: isAddedToCart
+                ? 'linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)'
+                : 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
             },
+            '&.Mui-disabled': {
+              color: 'rgba(255, 255, 255, 0.7)',
+              background: isAddedToCart 
+                ? 'linear-gradient(45deg, #4CAF50 30%, #81C784 90%)'
+                : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            }
           }}
         >
           {isLoading ? (
             <CircularProgress size="sm" />
           ) : isOutOfStock ? (
             'Нет в наличии'
+          ) : isAddedToCart ? (
+            'Добавлено в корзину'
           ) : (
             'В корзину'
           )}

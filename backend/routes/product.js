@@ -18,4 +18,4 @@ router.put('/:id', productController.update);
 // Маршрут для удаления продукта
 router.delete('/:id', productController.delete);
 
-export default router;
+export { router as product };
