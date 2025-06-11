@@ -8,9 +8,6 @@ RUN npm run build
 # Production Stage
 FROM nginx AS production
 COPY --from=build /app/dist /usr/share/nginx/html
-# Удаляем дефолтный конфиг
-
-# Копируем наш конфиг
 COPY app.conf /etc/nginx/conf.d
 
 EXPOSE 80
