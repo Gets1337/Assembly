@@ -252,7 +252,7 @@ INSERT INTO "User" (login, password, full_name, birth_date, role_id) VALUES
   ('user', '$2b$10$lRvmLL1uG.s4zaVQsK16HujZ4L9vaNWzMm3ACkSX6qVk6ZYT73ap6', 'User', '1995-05-05', (SELECT id FROM "Role" WHERE name = 'user'));
 
 INSERT INTO "Product" (name, description, price, stock_quantity, image_url, created_at, updated_at) VALUES
-  ('iPhone 13 Pro', 'https://mtscdn.ru/upload/iblock/28a/7000_5394.png', 999.99, 15, 'https://mtscdn.ru/upload/iblock/28a/7000_5394.png', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('iPhone 13 Pro', '', 999.99, 15, 'https://mtscdn.ru/upload/iblock/28a/7000_5394.png', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   ('Samsung 4K TV', '55-inch 4K Smart TV', 699.99, 5, 'https://online-samsung.ru/sites/default/files/styles/product_full/public/2024-12/UE65CU7100UXRU_14.png.webp?itok=nJ8AvK-v', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   ('PlayStation 5', 'Next-gen gaming console', 499.99, 8, 'https://istudio-shop.ru/upload/iblock/8c6/o3l8545wmk8ti1kqbw87y1n2648soy11.webp', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   ('AirPods Pro', 'Wireless noise-cancelling earbuds', 249.99, 20, 'https://ishop124.ru/wp-content/uploads/2023/10/apple-airpods-pro-22023-1.jpeg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
