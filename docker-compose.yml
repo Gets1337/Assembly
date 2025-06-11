@@ -22,9 +22,7 @@ services:
       - my-network
     ports:
       - "80:80"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "8080:8080"
     stdin_open: true
     tty: true
 
@@ -37,9 +35,7 @@ services:
       - postgres
     ports:
       - "3000:3000"
-      - "5555:5555"
     environment:
-      - NODE_ENV=development
       - DATABASE_URL=postgresql://user:example@postgres:5432/dbname?schema=public
     volumes:
       - ./backend:/app
