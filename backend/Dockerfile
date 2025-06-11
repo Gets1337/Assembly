@@ -10,8 +10,8 @@ RUN npm install
 
 COPY prisma ./prisma/
 
-RUN npx prisma generate 
-RUN npx prisma migrate deploy
+RUN npx prisma generate
+#RUN npx prisma migrate deploy
 
 COPY . .
 
@@ -19,4 +19,4 @@ RUN npm rebuild bcrypt --build-from-source
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"] 
+CMD ["npm", "run", "start"]
