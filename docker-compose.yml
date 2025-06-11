@@ -1,0 +1,58 @@
+services:
+  postgres:
+    container_name: postgres-db
+    image: postgres:latest
+    expose:
+      - "5432"
+    networks:
+      - my-network
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_USER: user
+      POSTGRES_DB: dbname
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./backend/postgres-data:/var/lib/postgresql/data
+
+  frontend:
+    build: ./frontend
+    container_name: frontend-dev
+    networks:
+      - my-network
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:5173
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+
+  backend:
+    build: ./backend
+    container_name: backend-dev
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://user:example@postgres:5432/dbname?schema=public
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres-data:
+
+networks:
+  my-network:
+    driver: bridge
