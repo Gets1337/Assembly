@@ -70,7 +70,7 @@ export const Cart = ({}: CartProps) => {
     setIsLoading(true);
     setError(null);
     try {
-      const order = await orderService.createOrder();
+      await orderService.createOrder();
       await fetchCart();
       navigate('/orders');
     } catch (error) {
