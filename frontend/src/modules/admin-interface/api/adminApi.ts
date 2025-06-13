@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BASE_URL = `${window.location.protocol}//${window.location.host}:3000`;
-const API_URL = `${BASE_URL}/api/admin`;
+
 
 const api = axios.create({
   baseURL: BASE_URL,
