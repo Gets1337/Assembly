@@ -36,7 +36,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://user:example@postgres:5432/dbname?schema=public
+      - DATABASE_URL=postgresql://user:example@postgres-db:5432/dbname?schema=public
     volumes:
       - ./backend:/app
       - /app/node_modules
