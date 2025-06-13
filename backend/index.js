@@ -7,14 +7,11 @@ const app = express();
 const port = 3000;
 
 app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigin = `${origin.split(':')[0]}://${origin.split('//')[1].split(':')[0]}:3000`;
-    callback(null, allowedOrigin);
-  },
+  origin: true,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  credentials: true,
   maxAge: 86400
 }));
 
