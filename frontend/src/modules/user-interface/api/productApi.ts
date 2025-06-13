@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = './';
+const API_URL = `${window.location.protocol}//${window.location.host}:3000`;
 
 export const api = axios.create({
   baseURL: API_URL,

@@ -1,1 +1,1 @@
-export const API_URL = './api'; 
+export const API_URL = `${window.location.protocol}//${window.location.host}:3000`;
