@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = './';
 const API_URL = `${BASE_URL}/api/admin`;
 
 const getAuthHeader = () => ({
