@@ -1,33 +1,39 @@
 import axios from 'axios';
 
-const BASE_URL = './';
+const BASE_URL = `${window.location.protocol}//${window.location.host}:3000`;
 const API_URL = `${BASE_URL}/api/admin`;
 
-const getAuthHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem('token')}`
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const adminApi = {
   // Заказы
   getActiveOrders: async () => {
-    const response = await axios.get(`${API_URL}/orders/active`, {
-      headers: getAuthHeader()
-    });
+    const response = await api.get('/api/admin/orders/active');
     return Array.isArray(response.data) ? response.data : [];
   },
 
   getOrderHistory: async () => {
-    const response = await axios.get(`${API_URL}/orders/history`, {
-      headers: getAuthHeader()
-    });
+    const response = await api.get('/api/admin/orders/history');
     return Array.isArray(response.data) ? response.data : [];
   },
 
   // Пользователи
   getUsers: async () => {
-    const response = await axios.get(`${API_URL}/users`, {
-      headers: getAuthHeader()
-    });
+    const response = await api.get('/api/admin/users');
     return Array.isArray(response.data) ? response.data : [];
   },
 
@@ -37,21 +43,13 @@ export const adminApi = {
     role: string;
     birth_date: string;
   }) => {
-    const response = await axios.put(
-      `${API_URL}/users/${userId}`,
-      userData,
-      {
-        headers: getAuthHeader()
-      }
-    );
+    const response = await api.put(`/api/admin/users/${userId}`, userData);
     return response.data;
   },
 
   // Товары
   getProducts: async () => {
-    const response = await axios.get(`${API_URL}/products`, {
-      headers: getAuthHeader()
-    });
+    const response = await api.get('/api/admin/products');
     return Array.isArray(response.data) ? response.data : [];
   },
 
@@ -62,13 +60,7 @@ export const adminApi = {
     stock_quantity: number;
     image_url: string;
   }) => {
-    const response = await axios.put(
-      `${API_URL}/products/${productId}`,
-      productData,
-      {
-        headers: getAuthHeader()
-      }
-    );
+    const response = await api.put(`/api/admin/products/${productId}`, productData);
     return response.data;
   },
 
@@ -79,23 +71,12 @@ export const adminApi = {
     stock_quantity: number;
     image_url: string;
   }) => {
-    const response = await axios.post(
-      `${API_URL}/products`,
-      productData,
-      {
-        headers: getAuthHeader()
-      }
-    );
+    const response = await api.post('/api/admin/products', productData);
     return response.data;
   },
 
   deleteProduct: async (productId: number) => {
-    const response = await axios.delete(
-      `${API_URL}/products/${productId}`,
-      {
-        headers: getAuthHeader()
-      }
-    );
+    const response = await api.delete(`/api/admin/products/${productId}`);
     return response.data;
   }
 }; 

@@ -20,26 +20,26 @@ api.interceptors.request.use((config) => {
 
 export const productApi = {
   getAllProducts: async () => {
-    const response = await axios.get(`${API_URL}/products`);
+    const response = await api.get('/products');
     return response.data;
   },
 
   getProductById: async (id: number) => {
-    const response = await axios.get(`${API_URL}/products/${id}`);
+    const response = await api.get(`/products/${id}`);
     return response.data;
   },
 
   createProduct: async (productData: any) => {
-    const response = await axios.post(`${API_URL}/products`, productData);
+    const response = await api.post('/products', productData);
     return response.data;
   },
 
   updateProduct: async (id: number, productData: any) => {
-    const response = await axios.put(`${API_URL}/products/${id}`, productData);
+    const response = await api.put(`/products/${id}`, productData);
     return response.data;
   },
 
   deleteProduct: async (id: number) => {
-    await axios.delete(`${API_URL}/products/${id}`);
+    await api.delete(`/products/${id}`);
   },
 }; 
