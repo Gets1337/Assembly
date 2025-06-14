@@ -10,6 +10,8 @@ RUN npm install
 
 COPY prisma ./prisma/
 
+ENV DATABASE_URL="postgresql://user:example@postgres-db:5432/dbname?schema=public"
+
 RUN npx prisma generate
 RUN npx prisma migrate dev
 
