@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Sheet, CircularProgress, Modal, ModalDialog, ModalClose, Divider, AspectRatio } from '@mui/joy';
-import { Order, ORDER_STATUS } from '../types';
+import { Box, Typography, Sheet, CircularProgress, Modal, ModalDialog, ModalClose, Divider } from '@mui/joy';
+import { Order } from '../types';
 import { orderService } from '../services/order-service';
-import { translateStatus } from '../utils/status-translator';
 
-const STATUS_COLORS = {
-  [ORDER_STATUS.CREATED]: 'warning.500',
-  [ORDER_STATUS.WORKED]: 'warning.500',
-  [ORDER_STATUS.READY]: 'success.500',
-  [ORDER_STATUS.ISSUED]: 'success.500',
-} as const;
+const STATUS_COLORS: Record<string, string> = {
+  'Создан': '#FFA726',
+  'В работе': '#FFA726',
+  'Готов к выдаче': '#66BB6A',
+  'Выдан': '#66BB6A',
+};
+
+const STATUS_TRANSLATIONS: Record<string, string> = {
+  'created': 'Создан',
+  'worked': 'В работе',
+  'ready': 'Готов к выдаче',
+  'issued': 'Выдан',
+};
 
 export const OrdersContent = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -37,8 +43,13 @@ export const OrdersContent = () => {
     setSelectedOrder(order);
   };
 
-  const getStatusColor = (statusName: string) => {
-    return STATUS_COLORS[statusName as keyof typeof STATUS_COLORS] || 'neutral.500';
+  const getStatusColor = (status: { name: string }) => {
+    const translatedStatus = STATUS_TRANSLATIONS[status.name.toLowerCase()] || status.name;
+    return STATUS_COLORS[translatedStatus] || '#B0BEC5';
+  };
+
+  const getStatusText = (status: { name: string }) => {
+    return STATUS_TRANSLATIONS[status.name.toLowerCase()] || status.name;
   };
 
   if (isLoading) {
@@ -58,161 +69,311 @@ export const OrdersContent = () => {
   }
 
   return (
-    <Box sx={{ p: 3, maxWidth: '800px', mx: 'auto' }}>
-      <Typography level="h4" sx={{ mb: 3 }}>
-        Мои заказы
-      </Typography>
-
-      {orders.length === 0 ? (
-        <Typography>У вас пока нет заказов</Typography>
-      ) : (
-        orders.map((order) => (
-          <Sheet
-            key={order.id}
-            variant="outlined"
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: 'md',
-              cursor: 'pointer',
-              '&:hover': {
-                bgcolor: 'background.level1'
-              }
-            }}
-            onClick={() => handleOrderClick(order)}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography level="title-md">
-                Заказ #{order.id}
-              </Typography>
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: getStatusColor(translateStatus(order.status.name))
-                }}
-              >
-                {translateStatus(order.status.name)}
-              </Typography>
-            </Box>
-
-            <Typography level="body-sm" sx={{ color: 'neutral.500', mb: 1 }}>
-              {new Date(order.created_at).toLocaleDateString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </Typography>
-
-            <Typography level="body-sm" sx={{ mb: 1 }}>
-              Способ оплаты: {order.payment_method === 'card' ? 'Банковской картой' : 'Наличными при получении'}
-            </Typography>
-
-            <Typography level="title-md">
-              Сумма: {order.total_amount} ₽
-            </Typography>
-          </Sheet>
-        ))
-      )}
-
-      <Modal
-        open={!!selectedOrder}
-        onClose={() => setSelectedOrder(null)}
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+    <Box sx={{ 
+      width: '100%',
+      maxWidth: '1400px',
+      mx: 'auto',
+      p: { xs: 2, sm: 3, md: 4 }
+    }}>
+      <Sheet
+        variant="outlined"
+        sx={{
+          p: 3,
+          borderRadius: '16px',
+          background: '#ffffff',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        }}
       >
-        <ModalDialog
-          variant="outlined"
-          role="dialog"
-          aria-labelledby="order-details-dialog"
-          sx={{
-            maxWidth: 500,
-            width: '100%',
-            p: 3,
-            borderRadius: 'md',
+        <Typography 
+          level="h3" 
+          sx={{ 
+            mb: 3,
+            fontWeight: 'bold',
+            color: '#2D3436',
+            fontSize: '1.75rem'
           }}
         >
-          <ModalClose />
-          <Typography level="h4" sx={{ mb: 2 }}>
-            Детали заказа #{selectedOrder?.id}
-          </Typography>
-          
-          <Box sx={{ mb: 2 }}>
-            <Typography level="body-sm" sx={{ color: 'neutral.500' }}>
-              {new Date(selectedOrder?.created_at || '').toLocaleDateString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+          Мои заказы
+        </Typography>
+
+        {orders.length === 0 ? (
+          <Box sx={{ 
+            textAlign: 'center', 
+            py: 6,
+            color: '#636E72'
+          }}>
+            <Typography level="h4" sx={{ mb: 2 }}>
+              У вас пока нет заказов
             </Typography>
-            <Typography
-              level="body-sm"
-              sx={{
-                color: getStatusColor(translateStatus(selectedOrder?.status.name || ''))
-              }}
-            >
-              Статус: {translateStatus(selectedOrder?.status.name || '')}
+            <Typography level="body-lg">
+              После оформления заказа он появится в этом списке
             </Typography>
           </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Typography level="title-md" sx={{ mb: 2 }}>
-            Товары в заказе:
-          </Typography>
-
-          {selectedOrder?.products?.map((item) => (
-            <Box key={item.id} sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <AspectRatio
-                  ratio="1"
-                  sx={{
-                    width: 80,
-                    borderRadius: 'sm',
-                    overflow: 'hidden',
-                    bgcolor: 'background.level1'
-                  }}
-                >
-                  <img
-                    src={item.product.image_url}
-                    alt={item.product.name}
-                    loading="lazy"
-                    style={{ objectFit: 'cover' }}
-                  />
-                </AspectRatio>
-                <Box sx={{ flex: 1 }}>
-                  <Typography level="body-md">
-                    {item.product.name}
-                  </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-                    <Typography level="body-sm" sx={{ color: 'neutral.500' }}>
-                      {item.quantity} шт.
+        ) : (
+          <Box sx={{ 
+            display: 'grid',
+            gap: 2
+          }}>
+            {orders.map((order) => (
+              <Sheet
+                key={order.id}
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                    borderColor: '#FF6B6B',
+                  }
+                }}
+                onClick={() => handleOrderClick(order)}
+              >
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 2
+                }}>
+                  <Box>
+                    <Typography level="title-lg" sx={{ fontWeight: 'bold', color: '#2D3436' }}>
+                      Заказ #{order.id}
                     </Typography>
-                    <Typography level="body-sm">
-                      {item.product.price * item.quantity} ₽
+                    <Typography level="body-sm" sx={{ color: '#636E72', mt: 0.5 }}>
+                      {new Date(order.created_at).toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </Typography>
                   </Box>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    gap: 2
+                  }}>
+                    <Typography 
+                      level="title-lg" 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        color: '#1976D2'
+                      }}
+                    >
+                      {order.total_amount} ₽
+                    </Typography>
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: '20px',
+                        background: getStatusColor(order.status),
+                        color: 'white',
+                        fontSize: '0.875rem',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {getStatusText(order.status)}
+                    </Box>
+                  </Box>
+                </Box>
+
+                <Box sx={{ 
+                  display: 'flex',
+                  gap: 2,
+                  overflowX: 'auto',
+                  pb: 1,
+                  '&::-webkit-scrollbar': {
+                    height: '4px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: '#F7F7F7',
+                    borderRadius: '4px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: '#DFE6E9',
+                    borderRadius: '4px',
+                    '&:hover': {
+                      background: '#B2BEC3',
+                    },
+                  },
+                }}>
+                  {order.products?.slice(0, 4).map((item) => (
+                    <Box
+                      key={item.id}
+                      sx={{
+                        flexShrink: 0,
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                      }}
+                    >
+                      <img
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                  ))}
+                  {order.products && order.products.length > 4 && (
+                    <Box
+                      sx={{
+                        flexShrink: 0,
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '8px',
+                        background: '#F7F7F7',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#636E72',
+                        fontWeight: 'bold',
+                        fontSize: '1.25rem',
+                      }}
+                    >
+                      +{order.products.length - 4}
+                    </Box>
+                  )}
+                </Box>
+              </Sheet>
+            ))}
+          </Box>
+        )}
+      </Sheet>
+
+      <Modal open={Boolean(selectedOrder)} onClose={() => setSelectedOrder(null)}>
+        <ModalDialog
+          sx={{
+            maxWidth: 600,
+            width: '100%',
+            borderRadius: '16px',
+            background: '#ffffff',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+          }}
+        >
+          <ModalClose sx={{ position: 'absolute', right: 16, top: 16 }} />
+          {selectedOrder && (
+            <Box sx={{ p: 2 }}>
+              <Typography level="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2D3436' }}>
+                Заказ #{selectedOrder.id}
+              </Typography>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography level="body-sm" sx={{ color: '#636E72', mb: 0.5 }}>
+                  Дата заказа
+                </Typography>
+                <Typography level="body-lg">
+                  {new Date(selectedOrder.created_at).toLocaleDateString('ru-RU', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </Typography>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography level="body-sm" sx={{ color: '#636E72', mb: 0.5 }}>
+                  Статус заказа
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'inline-block',
+                    px: 2,
+                    py: 0.5,
+                    borderRadius: '20px',
+                    background: getStatusColor(selectedOrder.status),
+                    color: 'white',
+                    fontSize: '0.875rem',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {getStatusText(selectedOrder.status)}
                 </Box>
               </Box>
+
+              <Typography level="title-lg" sx={{ mb: 2, color: '#2D3436' }}>
+                Товары в заказе
+              </Typography>
+
+              {selectedOrder.products?.map((item) => (
+                <Box 
+                  key={item.id} 
+                  sx={{ 
+                    mb: 2,
+                    p: 2,
+                    borderRadius: '12px',
+                    background: '#F7F7F7',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Box
+                      sx={{
+                        width: '100px',
+                        height: '100px',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                      }}
+                    >
+                      <img
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography level="title-md" sx={{ fontWeight: 'bold', color: '#2D3436' }}>
+                        {item.product.name}
+                      </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                        <Typography level="body-sm" sx={{ color: '#636E72' }}>
+                          {item.quantity} шт.
+                        </Typography>
+                        <Typography level="title-md" sx={{ color: '#1976D2', fontWeight: 'bold' }}>
+                          {item.product.price * item.quantity} ₽
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+
+              <Divider sx={{ my: 3 }} />
+
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                mb: 2
+              }}>
+                <Typography level="title-lg" sx={{ color: '#2D3436' }}>
+                  Итого:
+                </Typography>
+                <Typography level="h3" sx={{ color: '#1976D2', fontWeight: 'bold' }}>
+                  {selectedOrder.total_amount} ₽
+                </Typography>
+              </Box>
+
+              <Typography level="body-sm" sx={{ color: '#636E72' }}>
+                Способ оплаты: {selectedOrder.payment_method === 'card' ? 'Банковской картой' : 'Наличными при получении'}
+              </Typography>
             </Box>
-          ))}
-
-          <Divider sx={{ my: 2 }} />
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography level="title-md">
-              Итого:
-            </Typography>
-            <Typography level="title-lg">
-              {selectedOrder?.total_amount} ₽
-            </Typography>
-          </Box>
-
-          <Typography level="body-sm" sx={{ mt: 2, color: 'neutral.500' }}>
-            Способ оплаты: {selectedOrder?.payment_method === 'card' ? 'Банковской картой' : 'Наличными при получении'}
-          </Typography>
+          )}
         </ModalDialog>
       </Modal>
     </Box>

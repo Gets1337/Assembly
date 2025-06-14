@@ -24,6 +24,7 @@ interface AdminState {
   fetchUsers: () => Promise<void>;
   fetchActiveOrders: () => Promise<void>;
   fetchOrderHistory: () => Promise<void>;
+  updateOrderStatus: (orderId: number, status: string) => Promise<void>;
   updateUser: (userId: number, userData: { 
     name: string; 
     login: string;
@@ -123,6 +124,18 @@ export const useAdminStore = create<AdminState>((set) => ({
       set((state) => ({
         error: { ...state.error, orderHistory: 'Ошибка при загрузке истории заказов' },
         isLoading: { ...state.isLoading, orderHistory: false }
+      }));
+    }
+  },
+
+  updateOrderStatus: async (orderId: number, status: string) => {
+    try {
+      await adminApi.updateOrderStatus(orderId, status);
+      const orders = await adminApi.getActiveOrders();
+      set({ activeOrders: orders });
+    } catch (error) {
+      set((state) => ({
+        error: { ...state.error, activeOrders: 'Ошибка при обновлении статуса заказа' }
       }));
     }
   },

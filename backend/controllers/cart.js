@@ -26,8 +26,8 @@ export const cartController = {
   // Добавить товар в корзину
   async addItem(req, res) {
     try {
-      const userId = req.user.userId;
       const { product_id, quantity } = req.body;
+      const userId = req.user.userId;
 
       if (!product_id || !quantity) {
         return res.status(400).json({ error: 'Необходимо указать ID товара и количество' });
@@ -38,17 +38,11 @@ export const cartController = {
       }
 
       const product = await ProductModel.getById(product_id);
-
       if (!product) {
         return res.status(404).json({ error: 'Товар не найден' });
       }
 
-      if (product.stock_quantity <= 0) {
-        return res.status(400).json({ error: 'Товар отсутствует на складе' });
-      }
-
       let cart = await CartModel.findByUserId(userId);
-
       if (!cart) {
         cart = await CartModel.create({
           user_id: userId
@@ -96,9 +90,6 @@ export const cartController = {
         });
       }
 
-      // Уменьшаем количество товара на складе
-      await ProductModel.updateStock(product_id, product.stock_quantity - quantity);
-
       // Получаем обновленную информацию о товаре и корзине
       const updatedProduct = await ProductModel.getById(product_id);
       const updatedCart = await CartModel.findByUserId(userId);
@@ -108,7 +99,7 @@ export const cartController = {
       const isMaxQuantity = updatedItem.quantity >= updatedProduct.stock_quantity;
 
       res.json({
-        cart: updatedCart,
+        cartItem: updatedItem,
         product: updatedProduct,
         isMaxQuantity,
         currentQuantity: updatedItem.quantity,
@@ -178,9 +169,6 @@ export const cartController = {
         });
       }
 
-      // Обновляем количество на складе
-      await ProductModel.updateStock(cartItem.product_id, product.stock_quantity - quantityDifference);
-
       const updatedItem = await CartItemModel.findById(parseInt(itemId));
       const updatedProduct = await ProductModel.getById(cartItem.product_id);
 
@@ -216,8 +204,7 @@ export const cartController = {
         return res.status(403).json({ error: 'Нет доступа к этой корзине' });
       }
 
-      // Получаем информацию о товаре и резерве
-      const product = await ProductModel.getById(cartItem.product_id);
+      // Получаем информацию о резерве
       const reserve = await ReserveModel.findByProductAndUser(cartItem.product_id, userId);
 
       // Удаляем товар из корзины
@@ -227,9 +214,6 @@ export const cartController = {
       if (reserve) {
         await ReserveModel.delete(reserve.id);
       }
-
-      // Возвращаем количество товара на склад
-      await ProductModel.updateStock(cartItem.product_id, product.stock_quantity + cartItem.quantity);
 
       res.json({ message: 'Товар удален из корзины' });
     } catch (error) {

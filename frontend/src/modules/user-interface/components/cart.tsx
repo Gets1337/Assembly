@@ -104,13 +104,26 @@ export const Cart = ({}: CartProps) => {
         variant="outlined"
         sx={{
           p: 3,
-          borderRadius: 'md',
+          borderRadius: '16px',
           width: '100%',
-          maxWidth: '800px',
-          mx: 'auto'
+          maxWidth: '1000px',
+          mx: 'auto',
+          background: '#ffffff',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
-        <Typography level="h4" sx={{ mb: 2 }}>Корзина</Typography>
+        <Typography 
+          level="h4" 
+          sx={{ 
+            mb: 3,
+            fontWeight: 'bold',
+            color: '#1976D2',
+            fontSize: '1.75rem'
+          }}
+        >
+          Корзина
+        </Typography>
         
         {error && (
           <Typography color="danger" level="body-md" sx={{ mb: 2 }}>
@@ -119,7 +132,16 @@ export const Cart = ({}: CartProps) => {
         )}
         
         {cart.length === 0 ? (
-          <Typography>Корзина пуста</Typography>
+          <Typography 
+            level="body-lg" 
+            sx={{ 
+              textAlign: 'center',
+              color: 'neutral.500',
+              py: 4
+            }}
+          >
+            Корзина пуста
+          </Typography>
         ) : (
           <>
             {cart.map((item) => (
@@ -129,8 +151,15 @@ export const Cart = ({}: CartProps) => {
                   display: 'flex',
                   alignItems: 'center',
                   py: 2,
+                  px: 2,
                   borderBottom: '1px solid',
-                  borderColor: 'divider'
+                  borderColor: 'divider',
+                  transition: 'all 0.2s ease-in-out',
+                  borderRadius: '8px',
+                  position: 'relative',
+                  '&:hover': {
+                    background: 'rgba(25, 118, 210, 0.04)',
+                  }
                 }}
               >
                 <Box
@@ -140,7 +169,12 @@ export const Cart = ({}: CartProps) => {
                     mr: 2,
                     borderRadius: 'sm',
                     overflow: 'hidden',
-                    flexShrink: 0
+                    flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    transition: 'transform 0.2s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                    }
                   }}
                 >
                   <img
@@ -154,41 +188,83 @@ export const Cart = ({}: CartProps) => {
                   />
                 </Box>
                 <Box sx={{ flex: 1 }}>
-                  <Typography level="title-md">{item.product.name}</Typography>
+                  <Typography level="title-md" sx={{ fontWeight: 'bold' }}>
+                    {item.product.name}
+                  </Typography>
                   <Typography level="body-sm" sx={{ color: 'neutral.500' }}>
                     {item.product.price} ₽
                   </Typography>
                 </Box>
                 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mx: 2 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 1, 
+                  mx: 2,
+                  flexDirection: { xs: 'column', sm: 'row' }
+                }}>
                   <Button
                     variant="outlined"
                     size="sm"
                     onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                     disabled={item.quantity <= 1}
+                    sx={{
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover:not(:disabled)': {
+                        background: 'rgba(33, 150, 243, 0.1)',
+                        transform: 'scale(1.1)',
+                      }
+                    }}
                   >
                     -
                   </Button>
-                  <Typography>{item.quantity}</Typography>
+                  <Typography sx={{ minWidth: '2ch', textAlign: 'center' }}>
+                    {item.quantity}
+                  </Typography>
                   <Button
                     variant="outlined"
                     size="sm"
                     onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                     disabled={item.quantity >= item.product.stock_quantity}
+                    sx={{
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover:not(:disabled)': {
+                        background: 'rgba(33, 150, 243, 0.1)',
+                        transform: 'scale(1.1)',
+                      }
+                    }}
                   >
                     +
                   </Button>
                 </Box>
                 
-                <Typography sx={{ minWidth: '100px', textAlign: 'right' }}>
+                <Typography 
+                  sx={{ 
+                    minWidth: '100px', 
+                    textAlign: 'right',
+                    fontWeight: 'bold',
+                    color: '#1976D2',
+                    display: { xs: 'none', sm: 'block' }
+                  }}
+                >
                   {item.product.price * item.quantity} ₽
                 </Typography>
                 
                 <IconButton
-                  variant="plain"
+                  variant="soft"
                   color="danger"
                   onClick={() => handleRemoveItem(item.id)}
-                  sx={{ ml: 2 }}
+                  sx={{ 
+                    ml: { xs: 0, sm: 2 },
+                    position: { xs: 'absolute', sm: 'static' },
+                    top: { xs: 8, sm: 'auto' },
+                    right: { xs: 8, sm: 'auto' },
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.1)',
+                      background: 'rgba(211, 47, 47, 0.1)',
+                    }
+                  }}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -196,7 +272,7 @@ export const Cart = ({}: CartProps) => {
             ))}
             
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography level="title-lg">
+              <Typography level="title-lg" sx={{ color: '#1976D2', fontWeight: 'bold' }}>
                 Итого: {total} ₽
               </Typography>
               <Button
@@ -205,10 +281,10 @@ export const Cart = ({}: CartProps) => {
                 disabled={isLoading || cart.length === 0}
                 loading={isLoading}
                 sx={{
-                  background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                  boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                  background: '#1976D2',
+                  boxShadow: '0 3px 5px 2px rgba(25, 118, 210, .3)',
                   '&:hover': {
-                    background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+                    background: '#1565C0',
                   },
                 }}
               >

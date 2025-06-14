@@ -43,17 +43,15 @@ export const ProtectedRoute = ({
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
+  if (user.role === 'admin') {
+    return <>{children}</>;
+  }
+
   if (restrictedRole && user.role === restrictedRole) {
-    if (user.role === 'admin') {
-      return <Navigate to="/admin" replace />;
-    }
     return <Navigate to="/worker" replace />;
   }
 
   if (requiredRole && user.role !== requiredRole) {
-    if (user.role === 'admin') {
-      return <Navigate to="/admin" replace />;
-    }
     return <Navigate to="/store" replace />;
   }
 

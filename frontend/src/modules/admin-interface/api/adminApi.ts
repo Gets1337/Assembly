@@ -31,6 +31,11 @@ export const adminApi = {
     return Array.isArray(response.data) ? response.data : [];
   },
 
+  updateOrderStatus: async (orderId: number, status: string) => {
+    const response = await api.patch(`/api/orders/${orderId}/status`, { status });
+    return response.data;
+  },
+
   // Пользователи
   getUsers: async () => {
     const response = await api.get('/api/admin/users');

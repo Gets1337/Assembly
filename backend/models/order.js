@@ -90,6 +90,33 @@ export const OrderModel = {
       }
     });
 
+    // Если новый статус "Issued" (id = 4), обновляем количество товара и удаляем резервы
+    if (newStatusId === 4) {
+      // Получаем все товары в заказе
+      const productsInOrder = await getPrismaClient().productInOrder.findMany({
+        where: { order_id: Number(id) },
+        include: { product: true }
+      });
+
+      // Обновляем количество для каждого товара и удаляем резервы
+      for (const item of productsInOrder) {
+        const product = item.product;
+        // Уменьшаем количество товара на складе
+        await getPrismaClient().product.update({
+          where: { id: product.id },
+          data: { stock_quantity: product.stock_quantity - item.quantity }
+        });
+
+        // Удаляем резерв для этого товара
+        await getPrismaClient().reserve.deleteMany({
+          where: {
+            product_id: product.id,
+            user_id: order.user_id
+          }
+        });
+      }
+    }
+
     // Обновляем статус заказа
     return await getPrismaClient().order.update({
       where: { id: Number(id) },

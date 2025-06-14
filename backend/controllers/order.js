@@ -37,9 +37,6 @@ export const orderController = {
 
       // Очищаем корзину
       await CartItemModel.deleteByCartId(cart.id);
-      
-      // Очищаем резервы пользователя
-      await ReserveModel.deleteByUserId(userId);
 
       res.json(order);
     } catch (error) {
@@ -94,7 +91,7 @@ export const orderController = {
       const { status_id } = req.body;
       const userId = req.user.userId;
       const user = await UserModel.getById(userId);
-      if (!user || user.role.name !== 'worker') {
+      if (!user || (user.role.name !== 'worker' && user.role.name !== 'admin')) {
         return res.status(403).json({ error: 'Нет прав для обновления статуса заказа' });
       }
 

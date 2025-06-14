@@ -1,4 +1,4 @@
-import { Box, Typography, Button, List, ListItem, ListItemContent, ListItemDecorator, Modal, ModalDialog, ModalClose, AspectRatio } from '@mui/joy';
+import { Box, Typography, Button, List, ListItem, Modal, ModalDialog, ModalClose, AspectRatio, Sheet } from '@mui/joy';
 import { useEffect, useState } from 'react';
 import { Order, OrderStatus } from '../types/order';
 import { useOrderStore } from '../store/orderStore';
@@ -145,50 +145,120 @@ export const OrderList = ({ status }: OrderListProps) => {
 
   return (
     <>
-      <List>
+      <List
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 2,
+          overflowX: 'auto',
+          pb: 1,
+          px: 0.5,
+          '&::-webkit-scrollbar': {
+            height: '10px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'background.level2',
+            borderRadius: '5px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'primary.500',
+            borderRadius: '5px',
+            '&:hover': {
+              background: 'primary.600',
+            },
+          },
+        }}
+      >
         {orders.map((order) => (
           <ListItem 
             key={order.id}
             sx={{
-              mb: 1,
-              borderRadius: 'sm',
+              minWidth: 320,
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              p: 2.5,
+              borderRadius: 'xl',
+              bgcolor: 'background.surface',
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+              transition: 'all 0.3s ease-in-out',
               '&:hover': {
-                bgcolor: 'background.level2'
+                boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                transform: 'translateY(-2px)',
+                borderColor: 'primary.500',
               }
             }}
           >
-            <ListItemDecorator>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1.5,
+              mb: 2,
+              width: '100%'
+            }}>
               <Box 
                 sx={{ 
-                  width: 8, 
-                  height: 8, 
+                  width: 12, 
+                  height: 12, 
                   borderRadius: '50%', 
-                  bgcolor: getStatusColor(status) 
+                  bgcolor: getStatusColor(status),
+                  boxShadow: `0 0 12px ${getStatusColor(status)}`
                 }} 
               />
-            </ListItemDecorator>
-            <ListItemContent>
-              <Typography level="body-md" sx={{ fontWeight: 'bold' }}>
+              <Typography 
+                level="title-lg" 
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'text.primary',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                }}
+              >
                 Заказ #{order.id}
               </Typography>
-            </ListItemContent>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 1.5,
+              width: '100%',
+              mt: 1
+            }}>
               {(status === 'Worked' || status === 'Ready') && (
                 <>
                   <Button
                     size="sm"
-                    variant="outlined"
+                    variant="soft"
                     color="neutral"
                     onClick={() => handleViewDetails(order)}
+                    sx={{
+                      flex: 1,
+                      fontWeight: 500,
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        bgcolor: 'background.level2',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                      }
+                    }}
                   >
                     Детали
                   </Button>
                   {status === 'Worked' && (
                     <Button
                       size="sm"
-                      variant="outlined"
+                      variant="solid"
                       color="primary"
                       onClick={() => handleOpenAssemblyModal(order)}
+                      sx={{
+                        flex: 1,
+                        fontWeight: 500,
+                        transition: 'all 0.3s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-1px)',
+                          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
+                        }
+                      }}
                     >
                       Собрать
                     </Button>
@@ -198,10 +268,19 @@ export const OrderList = ({ status }: OrderListProps) => {
               {status === 'Created' && (
                 <Button
                   size="sm"
-                  variant="outlined"
+                  variant="solid"
                   onClick={() => handleOrderStatusChange(order)}
                   disabled={loading}
                   color="primary"
+                  sx={{
+                    width: '100%',
+                    fontWeight: 500,
+                    transition: 'all 0.3s ease-in-out',
+                    '&:hover': {
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
+                    }
+                  }}
                 >
                   {getStatusButtonText(status)}
                 </Button>
@@ -228,32 +307,57 @@ export const OrderList = ({ status }: OrderListProps) => {
             maxWidth: 500,
             width: '100%',
             overflow: 'auto',
+            borderRadius: 'xl',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            border: '1px solid',
+            borderColor: 'divider',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
           }}
         >
           <ModalClose />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography level="h4">Детали заказа #{selectedOrder?.id}</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Typography 
+              level="h4" 
+              sx={{ 
+                fontWeight: 'bold',
+                color: 'primary.700',
+                textShadow: '0 1px 2px rgba(0,0,0,0.05)'
+              }}
+            >
+              Детали заказа #{selectedOrder?.id}
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {selectedOrder?.products.map((item) => (
-                <Box
+                <Sheet
                   key={item.product.id}
+                  variant="outlined"
                   sx={{
                     p: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 'sm',
+                    borderRadius: 'lg',
                     display: 'flex',
                     gap: 2,
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    transition: 'all 0.3s ease-in-out',
+                    '&:hover': {
+                      bgcolor: 'background.level1',
+                      transform: 'translateX(4px)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                    }
                   }}
                 >
                   <AspectRatio
                     ratio="1"
                     sx={{
-                      width: 60,
-                      borderRadius: 'sm',
+                      width: 70,
+                      borderRadius: 'md',
                       overflow: 'hidden',
-                      bgcolor: 'background.level1'
+                      bgcolor: 'background.level1',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                      }
                     }}
                   >
                     <img
@@ -264,39 +368,60 @@ export const OrderList = ({ status }: OrderListProps) => {
                     />
                   </AspectRatio>
                   <Box sx={{ flex: 1 }}>
-                    <Typography level="body-md" sx={{ fontWeight: 'bold' }}>
+                    <Typography level="title-md" sx={{ fontWeight: 'bold' }}>
                       {item.product.name}
                     </Typography>
                     <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
                       Количество: {item.quantity} шт.
                     </Typography>
                   </Box>
-                  <Typography level="body-md" sx={{ color: 'primary.500' }}>
+                  <Typography 
+                    level="title-md" 
+                    sx={{ 
+                      color: 'primary.700',
+                      fontWeight: 'bold',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}
+                  >
                     {item.product.price * item.quantity} ₽
                   </Typography>
-                </Box>
+                </Sheet>
               ))}
             </Box>
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              mt: 2,
-              p: 2,
-              borderRadius: 'md',
-              bgcolor: 'background.level1'
-            }}>
-              <Typography level="h4">Итого:</Typography>
-              <Typography level="h4" sx={{ color: 'primary.500' }}>
+            <Sheet
+              variant="soft"
+              color="primary"
+              sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                mt: 2,
+                p: 2.5,
+                borderRadius: 'lg',
+                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
+              }}
+            >
+              <Typography level="title-lg" sx={{ fontWeight: 'bold', color: 'white' }}>
+                Итого:
+              </Typography>
+              <Typography level="title-lg" sx={{ fontWeight: 'bold', color: 'white' }}>
                 {selectedOrder?.total_amount} ₽
               </Typography>
-            </Box>
+            </Sheet>
             {status === 'Ready' && (
               <Button
                 color="success"
                 onClick={handleIssueOrder}
                 disabled={loading}
-                sx={{ mt: 2 }}
+                sx={{ 
+                  mt: 2,
+                  fontWeight: 500,
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(46, 125, 50, 0.2)'
+                  }
+                }}
               >
                 Выдать заказ
               </Button>
