@@ -17,7 +17,13 @@ export const Header = () => {
   };
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+    if (anchorEl) {
+      // Если меню уже открыто, закрываем его
+      setAnchorEl(null);
+    } else {
+      // Если меню закрыто, открываем его
+      setAnchorEl(event.currentTarget);
+    }
   };
 
   const handleMenuClose = () => {
@@ -34,8 +40,9 @@ export const Header = () => {
       borderColor: 'divider',
       position: 'sticky',
       top: 0,
-      zIndex: 1000,
-      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
+      zIndex: 1100,
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+      WebkitBackdropFilter: 'blur(10px)',
     }}>
       <Stack 
         direction="row" 
@@ -49,11 +56,19 @@ export const Header = () => {
       >
         <Typography 
           level="h2" 
+          onClick={() => navigate('/store')}
           sx={{ 
             background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              transform: 'scale(1.05)',
+              filter: 'brightness(1.1)',
+            },
+            userSelect: 'none',
           }}
         >
           Магазин

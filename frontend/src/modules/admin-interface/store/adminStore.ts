@@ -48,6 +48,27 @@ interface AdminState {
     image_url: string;
   }) => Promise<void>;
   deleteProduct: (productId: number) => Promise<void>;
+
+  createUser: (userData: { 
+    name: string; 
+    login: string;
+    password: string;
+    role: string;
+    birth_date: string;
+  }) => Promise<void>;
+
+  deleteUser: (userId: number) => Promise<void>;
+
+  deleteOrder: (orderId: number) => Promise<void>;
+  updateOrder: (orderId: number, orderData: {
+    status_name?: string;
+    payment_method?: string;
+    total_amount?: number;
+  }) => Promise<void>;
+  updateOrderProducts: (orderId: number, products: Array<{
+    product_id: number;
+    quantity: number;
+  }>) => Promise<void>;
 }
 
 export const useAdminStore = create<AdminState>((set) => ({
@@ -209,6 +230,73 @@ export const useAdminStore = create<AdminState>((set) => ({
     } catch (error) {
       set((state) => ({
         error: { ...state.error, products: 'Ошибка при удалении товара' }
+      }));
+    }
+  },
+
+  createUser: async (userData) => {
+    try {
+      await adminApi.createUser(userData);
+      const users = await adminApi.getUsers();
+      set({ users });
+    } catch (error) {
+      set((state) => ({
+        error: { ...state.error, users: 'Ошибка при создании пользователя' }
+      }));
+    }
+  },
+
+  deleteUser: async (userId) => {
+    try {
+      await adminApi.deleteUser(userId);
+      const users = await adminApi.getUsers();
+      set({ users });
+    } catch (error) {
+      set((state) => ({
+        error: { ...state.error, users: 'Ошибка при удалении пользователя' }
+      }));
+    }
+  },
+
+  deleteOrder: async (orderId: number) => {
+    try {
+      await adminApi.deleteOrder(orderId);
+      const orders = await adminApi.getActiveOrders();
+      set({ activeOrders: orders });
+    } catch (error) {
+      set((state) => ({
+        error: { ...state.error, activeOrders: 'Ошибка при удалении заказа' }
+      }));
+    }
+  },
+
+  updateOrder: async (orderId: number, orderData: {
+    status_name?: string;
+    payment_method?: string;
+    total_amount?: number;
+  }) => {
+    try {
+      await adminApi.updateOrder(orderId, orderData);
+      const orders = await adminApi.getActiveOrders();
+      set({ activeOrders: orders });
+    } catch (error) {
+      set((state) => ({
+        error: { ...state.error, activeOrders: 'Ошибка при обновлении заказа' }
+      }));
+    }
+  },
+
+  updateOrderProducts: async (orderId: number, products: Array<{
+    product_id: number;
+    quantity: number;
+  }>) => {
+    try {
+      await adminApi.updateOrderProducts(orderId, products);
+      const orders = await adminApi.getActiveOrders();
+      set({ activeOrders: orders });
+    } catch (error) {
+      set((state) => ({
+        error: { ...state.error, activeOrders: 'Ошибка при обновлении товаров в заказе' }
       }));
     }
   }

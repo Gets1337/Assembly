@@ -32,7 +32,52 @@ export const adminApi = {
   },
 
   updateOrderStatus: async (orderId: number, status: string) => {
-    const response = await api.patch(`/api/orders/${orderId}/status`, { status });
+    const response = await api.put(`/api/admin/orders/${orderId}/status`, { status_name: status });
+    return response.data;
+  },
+
+  getOrderById: async (orderId: number) => {
+    const response = await api.get(`/api/admin/orders/${orderId}`);
+    return response.data;
+  },
+
+  updateOrder: async (orderId: number, orderData: {
+    status_name?: string;
+    payment_method?: string;
+    total_amount?: number;
+  }) => {
+    const response = await api.put(`/api/admin/orders/${orderId}`, orderData);
+    return response.data;
+  },
+
+  updateOrderProducts: async (orderId: number, products: Array<{
+    product_id: number;
+    quantity: number;
+  }>) => {
+    const response = await api.put(`/api/admin/orders/${orderId}/products`, { products });
+    return response.data;
+  },
+
+  createOrder: async (orderData: {
+    user_id: number;
+    status_name: string;
+    payment_method: string;
+    products: Array<{
+      product_id: number;
+      quantity: number;
+    }>;
+  }) => {
+    const response = await api.post('/api/admin/orders', orderData);
+    return response.data;
+  },
+
+  deleteOrder: async (orderId: number) => {
+    const response = await api.delete(`/api/admin/orders/${orderId}`);
+    return response.data;
+  },
+
+  getOrderStatuses: async () => {
+    const response = await api.get('/api/admin/orders/statuses');
     return response.data;
   },
 
@@ -49,6 +94,22 @@ export const adminApi = {
     birth_date: string;
   }) => {
     const response = await api.put(`/api/admin/users/${userId}`, userData);
+    return response.data;
+  },
+
+  createUser: async (userData: { 
+    name: string; 
+    login: string;
+    password: string;
+    role: string;
+    birth_date: string;
+  }) => {
+    const response = await api.post('/api/admin/users', userData);
+    return response.data;
+  },
+
+  deleteUser: async (userId: number) => {
+    const response = await api.delete(`/api/admin/users/${userId}`);
     return response.data;
   },
 

@@ -1,22 +1,131 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   Sheet,
   Typography,
   Box,
-  useTheme
+  useTheme,
+  Button,
+  Modal,
+  ModalDialog,
+  ModalClose,
+  DialogTitle,
+  DialogContent,
+  FormControl,
+  FormLabel,
+  Select,
+  Option,
+  Input,
+  Stack,
+  IconButton,
+  Tooltip
 } from '@mui/joy';
 import { useMediaQuery } from '@mui/material';
+import { Edit, Delete, Warning } from '@mui/icons-material';
 import { useAdminStore } from '../../store/adminStore';
 
 const ActiveOrders: React.FC = () => {
-  const { activeOrders, isLoading, error, fetchActiveOrders } = useAdminStore();
+  const { activeOrders, isLoading, error, fetchActiveOrders, deleteOrder, updateOrder, updateOrderProducts, products, fetchProducts } = useAdminStore();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  // Состояние для модальных окон
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [editForm, setEditForm] = useState({
+    status_name: '',
+    total_amount: '',
+    products: [] as Array<{ product_id: number; quantity: number; product?: any }>
+  });
+
   useEffect(() => {
     fetchActiveOrders();
-  }, [fetchActiveOrders]);
+    fetchProducts();
+  }, [fetchActiveOrders, fetchProducts]);
+
+  const handleEditClick = (order: any) => {
+    setSelectedOrder(order);
+    setEditForm({
+      status_name: order.status.name,
+      total_amount: order.total_amount.toString(),
+      products: order.products.map((item: any) => ({
+        product_id: item.product.id,
+        quantity: item.quantity,
+        product: item.product
+      }))
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (order: any) => {
+    setSelectedOrder(order);
+    setDeleteModalOpen(true);
+  };
+
+  const handleEditSubmit = async () => {
+    if (selectedOrder) {
+      // Обновляем статус и общую сумму
+      await updateOrder(selectedOrder.id, {
+        status_name: editForm.status_name,
+        total_amount: parseFloat(editForm.total_amount)
+      });
+      
+      // Обновляем товары в заказе
+      await updateOrderProducts(selectedOrder.id, editForm.products.map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity
+      })));
+      
+      setEditModalOpen(false);
+      setSelectedOrder(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (selectedOrder) {
+      await deleteOrder(selectedOrder.id);
+      setDeleteModalOpen(false);
+      setSelectedOrder(null);
+    }
+  };
+
+  const addProduct = () => {
+    setEditForm(prev => ({
+      ...prev,
+      products: [...prev.products, { product_id: 0, quantity: 1, product: null }]
+    }));
+  };
+
+  const removeProduct = (index: number) => {
+    setEditForm(prev => ({
+      ...prev,
+      products: prev.products.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateProduct = (index: number, field: 'product_id' | 'quantity', value: any) => {
+    setEditForm(prev => ({
+      ...prev,
+      products: prev.products.map((item, i) => {
+        if (i === index) {
+          if (field === 'product_id') {
+            const product = products.find(p => p.id === parseInt(value));
+            return { ...item, product_id: parseInt(value), product };
+          }
+          return { ...item, [field]: parseInt(value) };
+        }
+        return item;
+      })
+    }));
+  };
+
+  const calculateTotal = () => {
+    return editForm.products.reduce((sum, item) => {
+      const product = products.find(p => p.id === item.product_id);
+      return sum + (product ? Number(product.price) * item.quantity : 0);
+    }, 0);
+  };
 
   if (isLoading.activeOrders) {
     return (
@@ -150,6 +259,28 @@ const ActiveOrders: React.FC = () => {
                       </Typography>
                     ))}
                   </Box>
+                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                    <Tooltip title="Редактировать заказ">
+                      <IconButton
+                        size="sm"
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleEditClick(order)}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Удалить заказ">
+                      <IconButton
+                        size="sm"
+                        variant="outlined"
+                        color="danger"
+                        onClick={() => handleDeleteClick(order)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Sheet>
               ))
             ) : (
@@ -167,6 +298,7 @@ const ActiveOrders: React.FC = () => {
                 <th>Пользователь</th>
                 <th>Дата и время создания</th>
                 <th>Товары</th>
+                <th>Действия</th>
               </tr>
             </thead>
             <tbody>
@@ -205,11 +337,35 @@ const ActiveOrders: React.FC = () => {
                         </div>
                       ))}
                     </td>
+                    <td>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip title="Редактировать заказ">
+                          <IconButton
+                            size="sm"
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => handleEditClick(order)}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Удалить заказ">
+                          <IconButton
+                            size="sm"
+                            variant="outlined"
+                            color="danger"
+                            onClick={() => handleDeleteClick(order)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center' }}>
+                  <td colSpan={6} style={{ textAlign: 'center' }}>
                     <Typography>Нет активных заказов</Typography>
                   </td>
                 </tr>
@@ -218,6 +374,133 @@ const ActiveOrders: React.FC = () => {
           </Table>
         )}
       </Sheet>
+
+      {/* Модальное окно редактирования заказа */}
+      <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)}>
+        <ModalDialog size="lg">
+          <ModalClose />
+          <DialogTitle>Редактировать заказ #{selectedOrder?.id}</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 2 }}>
+              <FormControl>
+                <FormLabel>Статус</FormLabel>
+                <Select
+                  value={editForm.status_name}
+                  onChange={(_, value) => setEditForm(prev => ({ ...prev, status_name: value || '' }))}
+                >
+                  <Option value="Created">Создан</Option>
+                  <Option value="Worked">В работе</Option>
+                  <Option value="Ready">Готов к выдаче</Option>
+                  <Option value="Issued">Выдан</Option>
+                </Select>
+              </FormControl>
+              
+              <FormControl>
+                <FormLabel>Товары в заказе</FormLabel>
+                <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2 }}>
+                  {editForm.products.map((item, index) => (
+                    <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                      <Select
+                        value={item.product_id.toString()}
+                        onChange={(_, value) => updateProduct(index, 'product_id', value)}
+                        sx={{ minWidth: 200 }}
+                      >
+                        <Option value="0">Выберите товар</Option>
+                        {products.map((product) => (
+                          <Option key={product.id} value={product.id.toString()}>
+                            {product.name} - {product.price} ₽
+                          </Option>
+                        ))}
+                      </Select>
+                      <Input
+                        type="number"
+                        value={item.quantity.toString()}
+                        onChange={(e) => updateProduct(index, 'quantity', e.target.value)}
+                        placeholder="Кол-во"
+                        sx={{ width: 100 }}
+                      />
+                      <IconButton
+                        size="sm"
+                        variant="outlined"
+                        color="danger"
+                        onClick={() => removeProduct(index)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Box>
+                  ))}
+                  <Button
+                    variant="outlined"
+                    onClick={addProduct}
+                    sx={{ mt: 1 }}
+                  >
+                    Добавить товар
+                  </Button>
+                </Box>
+              </FormControl>
+              
+              <FormControl>
+                <FormLabel>Общая сумма (автоматически пересчитывается)</FormLabel>
+                <Input
+                  type="number"
+                  value={calculateTotal().toFixed(2)}
+                  disabled
+                  placeholder="Сумма"
+                />
+              </FormControl>
+              
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setEditModalOpen(false)}
+                >
+                  Отмена
+                </Button>
+                <Button
+                  variant="solid"
+                  color="primary"
+                  onClick={handleEditSubmit}
+                >
+                  Сохранить
+                </Button>
+              </Box>
+            </Stack>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+
+      {/* Модальное окно подтверждения удаления */}
+      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <ModalDialog size="sm">
+          <DialogTitle>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Warning color="warning" />
+              Подтверждение удаления
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Typography sx={{ mb: 3 }}>
+              Вы уверены, что хотите удалить заказ #{selectedOrder?.id}? 
+              Это действие нельзя отменить.
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+              <Button
+                variant="outlined"
+                onClick={() => setDeleteModalOpen(false)}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="solid"
+                color="danger"
+                onClick={handleDeleteConfirm}
+              >
+                Удалить
+              </Button>
+            </Box>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 };

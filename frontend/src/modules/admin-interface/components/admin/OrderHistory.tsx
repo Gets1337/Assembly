@@ -1,12 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   Sheet,
   Typography,
   Box,
-  useTheme
+  useTheme,
+  Modal,
+  ModalDialog,
+  ModalClose,
+  DialogTitle,
+  DialogContent,
+  FormControl,
+  FormLabel,
+  Stack,
+  IconButton,
+  Tooltip
 } from '@mui/joy';
 import { useMediaQuery } from '@mui/material';
+import { Visibility } from '@mui/icons-material';
 import { useAdminStore } from '../../store/adminStore';
 
 const OrderHistory: React.FC = () => {
@@ -14,9 +25,18 @@ const OrderHistory: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  // Состояние для модального окна просмотра деталей
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+
   useEffect(() => {
     fetchOrderHistory();
   }, [fetchOrderHistory]);
+
+  const handleViewDetails = (order: any) => {
+    setSelectedOrder(order);
+    setDetailsModalOpen(true);
+  };
 
   if (isLoading.orderHistory) {
     return (
@@ -210,6 +230,18 @@ const OrderHistory: React.FC = () => {
                     )}
                   </Box>
                 </Box>
+                <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                  <Tooltip title="Просмотреть заказ">
+                    <IconButton
+                      size="sm"
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => handleViewDetails(order)}
+                    >
+                      <Visibility />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </Sheet>
             ))
           ) : (
@@ -234,6 +266,7 @@ const OrderHistory: React.FC = () => {
                 <th>Пользователь</th>
                 <th>Дата и время создания</th>
                 <th>Товары</th>
+                <th>Действия</th>
               </tr>
             </thead>
             <tbody>
@@ -286,7 +319,7 @@ const OrderHistory: React.FC = () => {
                           },
                         },
                       }}>
-                        {order.products?.slice(0, 4).map((item) => (
+                        {order.products?.slice(0, 4).map((item: any) => (
                           <Box
                             key={item.id}
                             sx={{
@@ -330,11 +363,25 @@ const OrderHistory: React.FC = () => {
                         )}
                       </Box>
                     </td>
+                    <td>
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                        <Tooltip title="Просмотреть заказ">
+                          <IconButton
+                            size="sm"
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => handleViewDetails(order)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center' }}>
+                  <td colSpan={6} style={{ textAlign: 'center' }}>
                     <Typography>Нет истории заказов</Typography>
                   </td>
                 </tr>
@@ -343,6 +390,99 @@ const OrderHistory: React.FC = () => {
           </Table>
         </Sheet>
       )}
+
+      {/* Модальное окно просмотра деталей заказа */}
+      <Modal open={detailsModalOpen} onClose={() => setDetailsModalOpen(false)}>
+        <ModalDialog size="md">
+          <ModalClose />
+          <DialogTitle>Детали заказа #{selectedOrder?.id}</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 2 }}>
+              <FormControl>
+                <FormLabel>Статус</FormLabel>
+                <Typography>{getStatusText(selectedOrder?.status.name || '')}</Typography>
+              </FormControl>
+              
+              <FormControl>
+                <FormLabel>Пользователь</FormLabel>
+                <Typography>{selectedOrder?.user.full_name}</Typography>
+              </FormControl>
+              
+              <FormControl>
+                <FormLabel>Дата создания</FormLabel>
+                <Typography>{formatDateTime(selectedOrder?.created_at || '')}</Typography>
+              </FormControl>
+              
+              <FormControl>
+                <FormLabel>Товары</FormLabel>
+                <Box sx={{ 
+                  display: 'flex',
+                  gap: 2,
+                  overflowX: 'auto',
+                  pb: 1,
+                  '&::-webkit-scrollbar': {
+                    height: '4px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: '#F7F7F7',
+                    borderRadius: '4px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: '#DFE6E9',
+                    borderRadius: '4px',
+                    '&:hover': {
+                      background: '#B2BEC3',
+                    },
+                  },
+                }}>
+                  {selectedOrder?.products?.slice(0, 4).map((item: any) => (
+                    <Box
+                      key={item.id}
+                      sx={{
+                        flexShrink: 0,
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                      }}
+                    >
+                      <img
+                        src={item.product.image_url ?? ''}
+                        alt={item.product.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                  ))}
+                  {selectedOrder?.products && selectedOrder.products.length > 4 && (
+                    <Box
+                      sx={{
+                        flexShrink: 0,
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '8px',
+                        background: '#F7F7F7',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#636E72',
+                        fontWeight: 'bold',
+                        fontSize: '1.25rem',
+                      }}
+                    >
+                      +{selectedOrder.products.length - 4}
+                    </Box>
+                  )}
+                </Box>
+              </FormControl>
+            </Stack>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
     </Box>
   );
 };

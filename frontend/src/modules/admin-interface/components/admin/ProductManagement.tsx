@@ -175,7 +175,12 @@ const ProductManagement: React.FC = () => {
                       src={product.image_url ?? ''}
                       alt={product.name}
                       loading="lazy"
-                      style={{ objectFit: 'cover' }}
+                      style={{ 
+                        objectFit: 'contain',
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: '#F7F7F7'
+                      }}
                     />
                   </AspectRatio>
                   <Box sx={{ flex: 1 }}>
@@ -260,7 +265,12 @@ const ProductManagement: React.FC = () => {
                           src={product.image_url ?? ''}
                           alt={product.name}
                           loading="lazy"
-                          style={{ objectFit: 'cover' }}
+                          style={{ 
+                            objectFit: 'contain',
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: '#F7F7F7'
+                          }}
                         />
                       </AspectRatio>
                     </td>

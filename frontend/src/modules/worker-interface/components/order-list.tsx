@@ -151,18 +151,20 @@ export const OrderList = ({ status }: OrderListProps) => {
           flexDirection: 'row',
           gap: 2,
           overflowX: 'auto',
+          overflowY: 'hidden',
           pb: 1,
           px: 0.5,
+          scrollSnapType: 'x mandatory',
           '&::-webkit-scrollbar': {
-            height: '10px',
+            height: '8px',
           },
           '&::-webkit-scrollbar-track': {
             background: 'background.level2',
-            borderRadius: '5px',
+            borderRadius: '4px',
           },
           '&::-webkit-scrollbar-thumb': {
             background: 'primary.500',
-            borderRadius: '5px',
+            borderRadius: '4px',
             '&:hover': {
               background: 'primary.600',
             },
@@ -182,10 +184,11 @@ export const OrderList = ({ status }: OrderListProps) => {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-              transition: 'all 0.3s ease-in-out',
+              transition: 'box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out',
+              flexShrink: 0,
+              scrollSnapAlign: 'start',
               '&:hover': {
                 boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-                transform: 'translateY(-2px)',
                 borderColor: 'primary.500',
               }
             }}
@@ -234,10 +237,9 @@ export const OrderList = ({ status }: OrderListProps) => {
                     sx={{
                       flex: 1,
                       fontWeight: 500,
-                      transition: 'all 0.3s ease-in-out',
+                      transition: 'background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
                       '&:hover': {
                         bgcolor: 'background.level2',
-                        transform: 'translateY(-1px)',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                       }
                     }}
@@ -253,9 +255,8 @@ export const OrderList = ({ status }: OrderListProps) => {
                       sx={{
                         flex: 1,
                         fontWeight: 500,
-                        transition: 'all 0.3s ease-in-out',
+                        transition: 'box-shadow 0.3s ease-in-out',
                         '&:hover': {
-                          transform: 'translateY(-1px)',
                           boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
                         }
                       }}
@@ -275,9 +276,8 @@ export const OrderList = ({ status }: OrderListProps) => {
                   sx={{
                     width: '100%',
                     fontWeight: 500,
-                    transition: 'all 0.3s ease-in-out',
+                    transition: 'box-shadow 0.3s ease-in-out',
                     '&:hover': {
-                      transform: 'translateY(-1px)',
                       boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
                     }
                   }}
@@ -337,10 +337,9 @@ export const OrderList = ({ status }: OrderListProps) => {
                     display: 'flex',
                     gap: 2,
                     alignItems: 'center',
-                    transition: 'all 0.3s ease-in-out',
+                    transition: 'background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
                     '&:hover': {
                       bgcolor: 'background.level1',
-                      transform: 'translateX(4px)',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                     }
                   }}
@@ -364,7 +363,12 @@ export const OrderList = ({ status }: OrderListProps) => {
                       src={item.product.image_url}
                       alt={item.product.name}
                       loading="lazy"
-                      style={{ objectFit: 'cover' }}
+                      style={{ 
+                        objectFit: 'contain',
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: '#F7F7F7'
+                      }}
                     />
                   </AspectRatio>
                   <Box sx={{ flex: 1 }}>
@@ -416,9 +420,8 @@ export const OrderList = ({ status }: OrderListProps) => {
                 sx={{ 
                   mt: 2,
                   fontWeight: 500,
-                  transition: 'all 0.3s ease-in-out',
+                  transition: 'box-shadow 0.3s ease-in-out',
                   '&:hover': {
-                    transform: 'translateY(-1px)',
                     boxShadow: '0 4px 12px rgba(46, 125, 50, 0.2)'
                   }
                 }}

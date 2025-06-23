@@ -157,117 +157,141 @@ export const Cart = ({}: CartProps) => {
                   transition: 'all 0.2s ease-in-out',
                   borderRadius: '8px',
                   position: 'relative',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 1, sm: 0 },
                   '&:hover': {
                     background: 'rgba(25, 118, 210, 0.04)',
                   }
                 }}
               >
-                <Box
-                  sx={{
-                    width: '80px',
-                    height: '80px',
-                    mr: 2,
-                    borderRadius: 'sm',
-                    overflow: 'hidden',
-                    flexShrink: 0,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    transition: 'transform 0.2s ease-in-out',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                    }
-                  }}
-                >
-                  <img
-                    src={item.product.image_url}
-                    alt={item.product.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  <Typography level="title-md" sx={{ fontWeight: 'bold' }}>
-                    {item.product.name}
-                  </Typography>
-                  <Typography level="body-sm" sx={{ color: 'neutral.500' }}>
-                    {item.product.price} ₽
-                  </Typography>
-                </Box>
-                
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: 1, 
-                  mx: 2,
-                  flexDirection: { xs: 'column', sm: 'row' }
+                  width: '100%',
+                  gap: 2
                 }}>
-                  <Button
-                    variant="outlined"
-                    size="sm"
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                    disabled={item.quantity <= 1}
+                  <Box
                     sx={{
-                      transition: 'all 0.2s ease-in-out',
-                      '&:hover:not(:disabled)': {
-                        background: 'rgba(33, 150, 243, 0.1)',
-                        transform: 'scale(1.1)',
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: 'sm',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                      transition: 'transform 0.2s ease-in-out',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
                       }
                     }}
                   >
-                    -
-                  </Button>
-                  <Typography sx={{ minWidth: '2ch', textAlign: 'center' }}>
-                    {item.quantity}
+                    <img
+                      src={item.product.image_url}
+                      alt={item.product.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        backgroundColor: '#F7F7F7'
+                      }}
+                    />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography level="title-md" sx={{ fontWeight: 'bold' }}>
+                      {item.product.name}
+                    </Typography>
+                    <Typography level="body-sm" sx={{ color: 'neutral.500' }}>
+                      {item.product.price} ₽
+                    </Typography>
+                  </Box>
+                  
+                  <Typography 
+                    sx={{ 
+                      minWidth: '80px', 
+                      textAlign: 'right',
+                      fontWeight: 'bold',
+                      color: '#1976D2',
+                      display: { xs: 'block', sm: 'none' }
+                    }}
+                  >
+                    {item.product.price * item.quantity} ₽
                   </Typography>
-                  <Button
-                    variant="outlined"
-                    size="sm"
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                    disabled={item.quantity >= item.product.stock_quantity}
-                    sx={{
+                </Box>
+
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  gap: 2
+                }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1,
+                    flexDirection: 'row'
+                  }}>
+                    <Button
+                      variant="outlined"
+                      size="sm"
+                      onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
+                      sx={{
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover:not(:disabled)': {
+                          background: 'rgba(33, 150, 243, 0.1)',
+                          transform: 'scale(1.1)',
+                        }
+                      }}
+                    >
+                      -
+                    </Button>
+                    <Typography sx={{ minWidth: '2ch', textAlign: 'center' }}>
+                      {item.quantity}
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      size="sm"
+                      onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                      disabled={item.quantity >= item.product.stock_quantity}
+                      sx={{
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover:not(:disabled)': {
+                          background: 'rgba(33, 150, 243, 0.1)',
+                          transform: 'scale(1.1)',
+                        }
+                      }}
+                    >
+                      +
+                    </Button>
+                  </Box>
+                  
+                  <Typography 
+                    sx={{ 
+                      minWidth: '100px', 
+                      textAlign: 'right',
+                      fontWeight: 'bold',
+                      color: '#1976D2',
+                      display: { xs: 'none', sm: 'block' }
+                    }}
+                  >
+                    {item.product.price * item.quantity} ₽
+                  </Typography>
+                  
+                  <IconButton
+                    variant="soft"
+                    color="danger"
+                    onClick={() => handleRemoveItem(item.id)}
+                    sx={{ 
                       transition: 'all 0.2s ease-in-out',
-                      '&:hover:not(:disabled)': {
-                        background: 'rgba(33, 150, 243, 0.1)',
+                      '&:hover': {
                         transform: 'scale(1.1)',
+                        background: 'rgba(211, 47, 47, 0.1)',
                       }
                     }}
                   >
-                    +
-                  </Button>
+                    <DeleteIcon />
+                  </IconButton>
                 </Box>
-                
-                <Typography 
-                  sx={{ 
-                    minWidth: '100px', 
-                    textAlign: 'right',
-                    fontWeight: 'bold',
-                    color: '#1976D2',
-                    display: { xs: 'none', sm: 'block' }
-                  }}
-                >
-                  {item.product.price * item.quantity} ₽
-                </Typography>
-                
-                <IconButton
-                  variant="soft"
-                  color="danger"
-                  onClick={() => handleRemoveItem(item.id)}
-                  sx={{ 
-                    ml: { xs: 0, sm: 2 },
-                    position: { xs: 'absolute', sm: 'static' },
-                    top: { xs: 8, sm: 'auto' },
-                    right: { xs: 8, sm: 'auto' },
-                    transition: 'all 0.2s ease-in-out',
-                    '&:hover': {
-                      transform: 'scale(1.1)',
-                      background: 'rgba(211, 47, 47, 0.1)',
-                    }
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
               </Box>
             ))}
             
