@@ -168,11 +168,12 @@ const OrderHistory: React.FC = () => {
                   </Typography>
                   <Box sx={{ 
                     display: 'flex',
-                    gap: 2,
-                    overflowX: 'auto',
-                    pb: 1,
+                    flexDirection: 'column',
+                    gap: 1,
+                    maxHeight: '200px',
+                    overflowY: 'auto',
                     '&::-webkit-scrollbar': {
-                      height: '4px',
+                      width: '4px',
                     },
                     '&::-webkit-scrollbar-track': {
                       background: '#F7F7F7',
@@ -186,48 +187,56 @@ const OrderHistory: React.FC = () => {
                       },
                     },
                   }}>
-                    {order.products?.slice(0, 4).map((item) => (
+                    {order.products?.map((item) => (
                       <Box
                         key={item.id}
                         sx={{
-                          flexShrink: 0,
-                          width: '80px',
-                          height: '80px',
-                          borderRadius: '8px',
-                          overflow: 'hidden',
-                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                          display: 'flex',
+                          gap: 1,
+                          alignItems: 'center',
+                          p: 1,
+                          borderRadius: '4px',
+                          background: '#F7F7F7',
                         }}
                       >
-                        <img
-                          src={item.product.image_url ?? ''}
-                          alt={item.product.name}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
+                        <Box
+                          sx={{
+                            flexShrink: 0,
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)',
                           }}
-                        />
+                        >
+                          <img
+                            src={item.product.image_url ?? ''}
+                            alt={item.product.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'contain',
+                              backgroundColor: '#F7F7F7'
+                            }}
+                          />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography level="body-sm" sx={{ 
+                            fontWeight: 'bold',
+                            wordBreak: 'break-word',
+                            fontSize: '0.75rem'
+                          }}>
+                            {item.product.name}
+                          </Typography>
+                          <Typography level="body-xs" sx={{ 
+                            color: '#636E72',
+                            fontSize: '0.7rem'
+                          }}>
+                            {item.quantity} шт. × {item.product.price} ₽ = {item.product.price * item.quantity} ₽
+                          </Typography>
+                        </Box>
                       </Box>
                     ))}
-                    {order.products && order.products.length > 4 && (
-                      <Box
-                        sx={{
-                          flexShrink: 0,
-                          width: '80px',
-                          height: '80px',
-                          borderRadius: '8px',
-                          background: '#F7F7F7',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#636E72',
-                          fontWeight: 'bold',
-                          fontSize: '1.25rem',
-                        }}
-                      >
-                        +{order.products.length - 4}
-                      </Box>
-                    )}
                   </Box>
                 </Box>
                 <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
@@ -301,11 +310,12 @@ const OrderHistory: React.FC = () => {
                     <td>
                       <Box sx={{ 
                         display: 'flex',
-                        gap: 2,
-                        overflowX: 'auto',
-                        pb: 1,
+                        flexDirection: 'column',
+                        gap: 1,
+                        maxHeight: '150px',
+                        overflowY: 'auto',
                         '&::-webkit-scrollbar': {
-                          height: '4px',
+                          width: '4px',
                         },
                         '&::-webkit-scrollbar-track': {
                           background: '#F7F7F7',
@@ -319,48 +329,57 @@ const OrderHistory: React.FC = () => {
                           },
                         },
                       }}>
-                        {order.products?.slice(0, 4).map((item: any) => (
+                        {order.products?.map((item: any) => (
                           <Box
                             key={item.id}
                             sx={{
-                              flexShrink: 0,
-                              width: '60px',
-                              height: '60px',
-                              borderRadius: '8px',
-                              overflow: 'hidden',
-                              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                              display: 'flex',
+                              gap: 1,
+                              alignItems: 'center',
+                              p: 1,
+                              borderRadius: '4px',
+                              background: '#F7F7F7',
+                              fontSize: '0.75rem',
                             }}
                           >
-                            <img
-                              src={item.product.image_url ?? ''}
-                              alt={item.product.name}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
+                            <Box
+                              sx={{
+                                flexShrink: 0,
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '4px',
+                                overflow: 'hidden',
+                                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)',
                               }}
-                            />
+                            >
+                              <img
+                                src={item.product.image_url ?? ''}
+                                alt={item.product.name}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'contain',
+                                  backgroundColor: '#F7F7F7'
+                                }}
+                              />
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Typography level="body-xs" sx={{ 
+                                fontWeight: 'bold',
+                                wordBreak: 'break-word',
+                                fontSize: '0.7rem'
+                              }}>
+                                {item.product.name}
+                              </Typography>
+                              <Typography level="body-xs" sx={{ 
+                                color: '#636E72',
+                                fontSize: '0.65rem'
+                              }}>
+                                {item.quantity} шт. × {item.product.price} ₽
+                              </Typography>
+                            </Box>
                           </Box>
                         ))}
-                        {order.products && order.products.length > 4 && (
-                          <Box
-                            sx={{
-                              flexShrink: 0,
-                              width: '60px',
-                              height: '60px',
-                              borderRadius: '8px',
-                              background: '#F7F7F7',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: '#636E72',
-                              fontWeight: 'bold',
-                              fontSize: '1.25rem',
-                            }}
-                          >
-                            +{order.products.length - 4}
-                          </Box>
-                        )}
                       </Box>
                     </td>
                     <td>
@@ -412,16 +431,17 @@ const OrderHistory: React.FC = () => {
                 <FormLabel>Дата создания</FormLabel>
                 <Typography>{formatDateTime(selectedOrder?.created_at || '')}</Typography>
               </FormControl>
-              
+             
               <FormControl>
                 <FormLabel>Товары</FormLabel>
                 <Box sx={{ 
                   display: 'flex',
+                  flexDirection: 'column',
                   gap: 2,
-                  overflowX: 'auto',
-                  pb: 1,
+                  maxHeight: '400px',
+                  overflowY: 'auto',
                   '&::-webkit-scrollbar': {
-                    height: '4px',
+                    width: '6px',
                   },
                   '&::-webkit-scrollbar-track': {
                     background: '#F7F7F7',
@@ -435,49 +455,97 @@ const OrderHistory: React.FC = () => {
                     },
                   },
                 }}>
-                  {selectedOrder?.products?.slice(0, 4).map((item: any) => (
+                  {selectedOrder?.products?.map((item: any) => (
                     <Box
                       key={item.id}
                       sx={{
-                        flexShrink: 0,
-                        width: '80px',
-                        height: '80px',
+                        display: 'flex',
+                        gap: 2,
+                        p: 2,
                         borderRadius: '8px',
-                        overflow: 'hidden',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        background: '#F7F7F7',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                          background: '#EFEFEF',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        }
                       }}
                     >
-                      <img
-                        src={item.product.image_url ?? ''}
-                        alt={item.product.name}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
+                      <Box
+                        sx={{
+                          flexShrink: 0,
+                          width: '80px',
+                          height: '80px',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                         }}
-                      />
+                      >
+                        <img
+                          src={item.product.image_url ?? ''}
+                          alt={item.product.name}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            backgroundColor: '#F7F7F7'
+                          }}
+                        />
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography level="title-md" sx={{ 
+                          fontWeight: 'bold',
+                          color: '#2D3436',
+                          mb: 1,
+                          wordBreak: 'break-word'
+                        }}>
+                          {item.product.name}
+                        </Typography>
+                        {item.product.description && (
+                          <Typography level="body-sm" sx={{ 
+                            color: '#636E72',
+                            mb: 1,
+                            wordBreak: 'break-word'
+                          }}>
+                            {item.product.description}
+                          </Typography>
+                        )}
+                        <Box sx={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: 1
+                        }}>
+                          <Typography level="body-sm" sx={{ color: '#636E72' }}>
+                            Количество: {item.quantity} шт.
+                          </Typography>
+                          <Typography level="body-sm" sx={{ color: '#636E72' }}>
+                            Цена: {item.product.price} ₽
+                          </Typography>
+                          <Typography level="title-md" sx={{ 
+                            fontWeight: 'bold',
+                            color: '#1976D2'
+                          }}>
+                            {item.product.price * item.quantity} ₽
+                          </Typography>
+                        </Box>
+                      </Box>
                     </Box>
                   ))}
-                  {selectedOrder?.products && selectedOrder.products.length > 4 && (
-                    <Box
-                      sx={{
-                        flexShrink: 0,
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '8px',
-                        background: '#F7F7F7',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#636E72',
-                        fontWeight: 'bold',
-                        fontSize: '1.25rem',
-                      }}
-                    >
-                      +{selectedOrder.products.length - 4}
-                    </Box>
-                  )}
                 </Box>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Общая сумма заказа</FormLabel>
+                <Typography level="h4" sx={{ 
+                  fontWeight: 'bold',
+                  color: '#1976D2'
+                }}>
+                  {selectedOrder?.total_amount} ₽
+                </Typography>
               </FormControl>
             </Stack>
           </DialogContent>

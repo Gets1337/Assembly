@@ -253,11 +253,79 @@ const ActiveOrders: React.FC = () => {
                     <Typography level="body-sm" textColor="neutral.500" sx={{ mb: 0.5 }}>
                       Товары:
                     </Typography>
-                    {order.products.map((item, index) => (
-                      <Typography key={index} level="body-sm">
-                        {item.product.name} x {item.quantity}
-                      </Typography>
-                    ))}
+                    <Box sx={{ 
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 1,
+                      maxHeight: '150px',
+                      overflowY: 'auto',
+                      '&::-webkit-scrollbar': {
+                        width: '4px',
+                      },
+                      '&::-webkit-scrollbar-track': {
+                        background: '#F7F7F7',
+                        borderRadius: '4px',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        background: '#DFE6E9',
+                        borderRadius: '4px',
+                        '&:hover': {
+                          background: '#B2BEC3',
+                        },
+                      },
+                    }}>
+                      {order.products.map((item, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            display: 'flex',
+                            gap: 1,
+                            alignItems: 'center',
+                            p: 1,
+                            borderRadius: '4px',
+                            background: '#F7F7F7',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              flexShrink: 0,
+                              width: '30px',
+                              height: '30px',
+                              borderRadius: '4px',
+                              overflow: 'hidden',
+                              boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)',
+                            }}
+                          >
+                            <img
+                              src={item.product.image_url ?? ''}
+                              alt={item.product.name}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                backgroundColor: '#F7F7F7'
+                              }}
+                            />
+                          </Box>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography level="body-xs" sx={{ 
+                              fontWeight: 'bold',
+                              wordBreak: 'break-word',
+                              fontSize: '0.7rem'
+                            }}>
+                              {item.product.name}
+                            </Typography>
+                            <Typography level="body-xs" sx={{ 
+                              color: '#636E72',
+                              fontSize: '0.65rem'
+                            }}>
+                              {item.quantity} шт. × {item.product.price} ₽
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
                   </Box>
                   <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
                     <Tooltip title="Редактировать заказ">
@@ -331,11 +399,79 @@ const ActiveOrders: React.FC = () => {
                       {formatDateTime(order.created_at)}
                     </td>
                     <td>
-                      {order.products.map((item, index) => (
-                        <div key={index}>
-                          {item.product.name} x {item.quantity}
-                        </div>
-                      ))}
+                      <Box sx={{ 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                        maxHeight: '150px',
+                        overflowY: 'auto',
+                        '&::-webkit-scrollbar': {
+                          width: '4px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          background: '#F7F7F7',
+                          borderRadius: '4px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          background: '#DFE6E9',
+                          borderRadius: '4px',
+                          '&:hover': {
+                            background: '#B2BEC3',
+                          },
+                        },
+                      }}>
+                        {order.products.map((item, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: 'flex',
+                              gap: 1,
+                              alignItems: 'center',
+                              p: 1,
+                              borderRadius: '4px',
+                              background: '#F7F7F7',
+                              fontSize: '0.75rem',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                flexShrink: 0,
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '4px',
+                                overflow: 'hidden',
+                                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)',
+                              }}
+                            >
+                              <img
+                                src={item.product.image_url ?? ''}
+                                alt={item.product.name}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'contain',
+                                  backgroundColor: '#F7F7F7'
+                                }}
+                              />
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Typography level="body-xs" sx={{ 
+                                fontWeight: 'bold',
+                                wordBreak: 'break-word',
+                                fontSize: '0.7rem'
+                              }}>
+                                {item.product.name}
+                              </Typography>
+                              <Typography level="body-xs" sx={{ 
+                                color: '#636E72',
+                                fontSize: '0.65rem'
+                              }}>
+                                {item.quantity} шт. × {item.product.price} ₽
+                              </Typography>
+                            </Box>
+                          </Box>
+                        ))}
+                      </Box>
                     </td>
                     <td>
                       <Box sx={{ display: 'flex', gap: 1 }}>
