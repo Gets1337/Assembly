@@ -16,7 +16,6 @@ export const authenticateToken = (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Ошибка при проверке токена:', error);
     return res.status(403).json({ error: 'Недействительный токен' });
   }
 };
@@ -31,7 +30,6 @@ export const isAdmin = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.error('Ошибка при проверке прав администратора:', error);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 }; 
